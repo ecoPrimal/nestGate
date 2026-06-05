@@ -1,10 +1,10 @@
-# NestGate Capability Registry — Machine-Readable Self-Knowledge
+# NestGate Capability Registry — Backward-compatibility symlink
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2025-2026 ecoPrimals Collective
 #
-# This file is the single source of truth for NestGate's primal identity
-# and advertised capabilities. Wire Standard L3 responses and cross-check
-# tests derive from these definitions.
+# Canonical location: config/capability_registry.toml
+# This root copy is kept for backward compatibility with tooling that
+# expects the registry at the repo root. Edit config/ and copy here.
 #
 # Stability tiers:
 #   stable      — API surface frozen; breaking changes require major version bump
