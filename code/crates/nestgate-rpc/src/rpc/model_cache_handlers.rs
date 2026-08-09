@@ -216,10 +216,13 @@ pub const UNIX_SOCKET_SUPPORTED_METHODS: &[&str] = &[
     "content.retrieve_stream_chunk",
     "content.ingest",
     "content.query",
+    "content.stat",
     "content.fetch",
     "content.replicate",
     "content.replicate.pull",
     "content.sync",
+    // Dataset domain — provenance-tracked convergence state
+    "dataset.convergence",
     // Ionic bond ledger persistence (security capability provider)
     "bonding.ledger.store",
     "bonding.ledger.retrieve",

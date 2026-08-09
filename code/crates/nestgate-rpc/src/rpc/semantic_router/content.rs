@@ -58,6 +58,14 @@ pub(super) async fn content_exists(
     content_handlers::content_exists(Some(&params), shared_state()).await
 }
 
+/// Route `content.stat` → detailed CAS object metadata without data transfer.
+pub(super) async fn content_stat(
+    _router: &SemanticRouter<impl MetadataBackend>,
+    params: Value,
+) -> Result<Value> {
+    content_handlers::content_stat(Some(&params), shared_state()).await
+}
+
 /// Route `content.list` → enumerate content-addressed objects.
 pub(super) async fn content_list(
     _router: &SemanticRouter<impl MetadataBackend>,

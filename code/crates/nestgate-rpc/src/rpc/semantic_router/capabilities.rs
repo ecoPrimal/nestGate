@@ -35,6 +35,7 @@ const SEMANTIC_METHODS: &[&str] = &[
     "content.list",
     "content.query",
     "content.ingest",
+    "content.stat",
     "content.fetch",
     "content.publish",
     "content.resolve",

@@ -182,6 +182,7 @@ pub(super) async fn handle_request(
         "content.exists" => content_handlers::content_exists(request.params.as_ref(), state).await,
         "content.list" => content_handlers::content_list(request.params.as_ref(), state).await,
         "content.query" => content_handlers::content_query(request.params.as_ref(), state).await,
+        "content.stat" => content_handlers::content_stat(request.params.as_ref(), state).await,
         // Content ingest — bulk directory scan → BLAKE3 → CAS (O1)
         "content.ingest" => {
             content_handlers::content_ingest(request.params.as_ref(), state).await

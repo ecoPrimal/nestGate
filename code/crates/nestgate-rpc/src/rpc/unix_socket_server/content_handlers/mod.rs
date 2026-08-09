@@ -25,7 +25,7 @@ mod manifest;
 mod query;
 mod raw;
 
-pub use cas::{content_exists, content_get, content_list, content_put};
+pub use cas::{content_exists, content_get, content_list, content_put, content_stat};
 pub use fetch::content_fetch;
 pub use ingest::content_ingest;
 pub use manifest::{content_collections, content_promote, content_publish, content_resolve};

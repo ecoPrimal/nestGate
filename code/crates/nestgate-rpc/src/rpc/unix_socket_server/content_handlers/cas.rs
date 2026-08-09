@@ -278,6 +278,77 @@ pub async fn content_exists(params: Option<&Value>, state: &StorageState) -> Res
     }
 }
 
+/// `content.stat` — detailed metadata for a CAS object without transferring data.
+///
+/// Returns size, tier, provenance sidecar fields, and file timestamps.
+/// Unlike `content.exists` (which returns `{exists: false}` for missing objects),
+/// `content.stat` returns an error when the hash is not found — callers that
+/// need existence-checking should use `content.exists`.
+///
+/// # Parameters
+///
+/// | Field | Type | Required | Description |
+/// |-------|------|----------|-------------|
+/// | `hash` | string | yes | 64-char lowercase BLAKE3 hex digest |
+/// | `family_id` | string | no | CAS family (default from server state) |
+///
+/// # Returns
+///
+/// ```json
+/// {
+///   "hash": "<blake3_hex>",
+///   "size": 12345,
+///   "family_id": "my-family",
+///   "tier": "/path/to/cas/object",
+///   "modified_at": "2026-08-05T12:00:00Z",
+///   "content_type": "application/json",
+///   "stored_at": "2026-08-05T12:00:00Z",
+///   "source": "pipeline-x",
+///   "pipeline": "ci",
+///   "stored_by": "nestgate"
+/// }
+/// ```
+pub async fn content_stat(params: Option<&Value>, state: &StorageState) -> Result<Value> {
+    let params = params
+        .ok_or_else(|| NestGateError::invalid_input_with_field("params", "params required"))?;
+
+    let hash = params["hash"].as_str().ok_or_else(|| {
+        NestGateError::invalid_input_with_field("hash", "hash (blake3 hex string) required")
+    })?;
+    validate_blake3_hex(hash)?;
+    let family_id = resolve_family_id(params, state)?;
+
+    let object_path = resolve_cas_object(family_id, hash).ok_or_else(|| {
+        NestGateError::not_found(format!("content object not found: {hash}"))
+    })?;
+
+    let file_meta = tokio::fs::metadata(&object_path)
+        .await
+        .map_err(|e| NestGateError::io_error(format!("Failed to stat content {hash}: {e}")))?;
+
+    let modified_at = file_meta.modified().ok().map(|t| {
+        let dt: chrono::DateTime<chrono::Utc> = t.into();
+        dt.to_rfc3339()
+    });
+
+    let mut resp = json!({
+        "hash": hash,
+        "size": file_meta.len(),
+        "family_id": family_id,
+        "tier": object_path.to_string_lossy(),
+        "modified_at": modified_at,
+    });
+
+    let sidecar_path = object_path.with_extension("meta.json");
+    if let Ok(raw) = tokio::fs::read(&sidecar_path).await
+        && let Ok(sidecar) = serde_json::from_slice::<Value>(&raw)
+    {
+        merge_sidecar_fields(&mut resp, &sidecar);
+    }
+
+    Ok(resp)
+}
+
 /// `content.list` — enumerate content-addressed objects across all tiers.
 pub async fn content_list(params: Option<&Value>, state: &StorageState) -> Result<Value> {
     let empty = json!({});
@@ -329,4 +400,69 @@ pub async fn content_list(params: Option<&Value>, state: &StorageState) -> Resul
         "count": count,
         "family_id": family_id
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::super::StorageState;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn stat_missing_hash_returns_not_found() {
+        let state = StorageState::new().unwrap();
+        let hash = "a".repeat(64);
+        let params = json!({"hash": hash, "family_id": "stat-test-missing"});
+        let result = super::content_stat(Some(&params), &state).await;
+        assert!(result.is_err(), "stat on missing hash should error");
+        let err = result.unwrap_err().to_string();
+        assert!(
+            err.contains("not found"),
+            "error should mention 'not found': {err}"
+        );
+    }
+
+    #[tokio::test]
+    async fn stat_invalid_hash_rejected() {
+        let state = StorageState::new().unwrap();
+        let params = json!({"hash": "short", "family_id": "test"});
+        let result = super::content_stat(Some(&params), &state).await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn stat_after_put_returns_metadata() {
+        let state = StorageState::new().unwrap();
+        let content = format!("stat-test-{}", uuid::Uuid::new_v4());
+        let b64 = base64::Engine::encode(
+            &base64::engine::general_purpose::STANDARD,
+            content.as_bytes(),
+        );
+        let put_params = json!({
+            "data": b64,
+            "family_id": "stat-roundtrip",
+            "source": "stat-test",
+            "pipeline": "unit-test"
+        });
+        let put_result = super::content_put(Some(&put_params), &state).await.unwrap();
+        let hash = put_result["hash"].as_str().unwrap();
+        let size = put_result["size"].as_u64().unwrap();
+
+        let stat_params = json!({"hash": hash, "family_id": "stat-roundtrip"});
+        let stat_result = super::content_stat(Some(&stat_params), &state).await.unwrap();
+
+        assert_eq!(stat_result["hash"].as_str().unwrap(), hash);
+        assert_eq!(stat_result["size"].as_u64().unwrap(), size);
+        assert_eq!(stat_result["family_id"], "stat-roundtrip");
+        assert!(stat_result["tier"].as_str().is_some());
+        assert!(stat_result["modified_at"].as_str().is_some());
+        assert_eq!(stat_result["source"], "stat-test");
+        assert_eq!(stat_result["pipeline"], "unit-test");
+    }
+
+    #[tokio::test]
+    async fn stat_requires_params() {
+        let state = StorageState::new().unwrap();
+        let result = super::content_stat(None, &state).await;
+        assert!(result.is_err());
+    }
 }

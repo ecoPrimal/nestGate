@@ -251,8 +251,10 @@ mod tests {
         assert!(methods.contains(&"content.put"));
         assert!(methods.contains(&"content.ingest"));
         assert!(methods.contains(&"content.query"));
+        assert!(methods.contains(&"content.stat"));
         assert!(methods.contains(&"content.fetch"));
         assert!(methods.contains(&"content.resolve"));
+        assert!(methods.contains(&"dataset.convergence"));
         assert!(methods.contains(&"coord.blurbs.current"));
         assert!(
             !methods.contains(&"health.liveness"),
