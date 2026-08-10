@@ -132,23 +132,27 @@ impl RealZfsOperations {
             for pool in pool_array {
                 if let Some(name) = pool.get("name").and_then(|n| n.as_str()) {
                     pools.push(crate::handlers::PoolInfo {
-                        name: String::from(name),
-                        state: String::from(
-                            pool.get("state")
-                                .and_then(|s| s.as_str())
-                                .unwrap_or("unknown"),
-                        ),
-                        size: String::from(
-                            pool.get("size").and_then(|s| s.as_str()).unwrap_or("0"),
-                        ),
-                        allocated: String::from(
-                            pool.get("allocated")
-                                .and_then(|s| s.as_str())
-                                .unwrap_or("0"),
-                        ),
-                        free: String::from(
-                            pool.get("free").and_then(|s| s.as_str()).unwrap_or("0"),
-                        ),
+                        name: name.into(),
+                        state: pool
+                            .get("state")
+                            .and_then(|s| s.as_str())
+                            .unwrap_or("unknown")
+                            .into(),
+                        size: pool
+                            .get("size")
+                            .and_then(|s| s.as_str())
+                            .unwrap_or("0")
+                            .into(),
+                        allocated: pool
+                            .get("allocated")
+                            .and_then(|s| s.as_str())
+                            .unwrap_or("0")
+                            .into(),
+                        free: pool
+                            .get("free")
+                            .and_then(|s| s.as_str())
+                            .unwrap_or("0")
+                            .into(),
                         devices: Vec::new(), // Simplified for now
                     });
                 }
@@ -199,11 +203,11 @@ impl RealZfsOperations {
             .map(|line| {
                 let parts: Vec<&str> = line.split('\t').collect();
                 crate::handlers::DatasetInfo {
-                    name: String::from(parts.first().copied().unwrap_or("")),
-                    used: String::from(parts.get(1).copied().unwrap_or("")),
-                    available: String::from(parts.get(2).copied().unwrap_or("")),
-                    referenced: String::from(parts.get(3).copied().unwrap_or("")),
-                    mountpoint: String::from(parts.get(4).copied().unwrap_or("")),
+                    name: parts.first().copied().unwrap_or("").into(),
+                    used: parts.get(1).copied().unwrap_or("").into(),
+                    available: parts.get(2).copied().unwrap_or("").into(),
+                    referenced: parts.get(3).copied().unwrap_or("").into(),
+                    mountpoint: parts.get(4).copied().unwrap_or("").into(),
                 }
             })
             .collect();
@@ -251,10 +255,10 @@ impl RealZfsOperations {
             .map(|line| {
                 let parts: Vec<&str> = line.split('\t').collect();
                 crate::handlers::SnapshotInfo {
-                    name: String::from(parts.first().copied().unwrap_or("")),
-                    used: String::from(parts.get(1).copied().unwrap_or("")),
-                    referenced: String::from(parts.get(2).copied().unwrap_or("")),
-                    creation: String::from(parts.get(2).copied().unwrap_or("")),
+                    name: parts.first().copied().unwrap_or("").into(),
+                    used: parts.get(1).copied().unwrap_or("").into(),
+                    referenced: parts.get(2).copied().unwrap_or("").into(),
+                    creation: parts.get(2).copied().unwrap_or("").into(),
                 }
             })
             .collect();

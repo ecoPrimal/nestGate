@@ -318,17 +318,10 @@ impl ZeroCostZfsOperations for GcsBackend {
             prefix, class_name
         );
 
-        let dataset = GcsDataset {
-            name: name.to_string(),
-            pool: pool.name.clone(),
-            prefix,
-            tier,
-            storage_class,
-            created_at: std::time::SystemTime::now(),
-        };
-
-        info!("GCS dataset created: {}", name);
-        Ok(dataset)
+        Err(NestGateError::not_implemented(format!(
+            "GCS dataset creation not wired — prefix {prefix} (class {class_name}). \
+             Requires GCS JSON API integration via capability.call → songBird"
+        )))
     }
 
     /// Create GCS snapshot (object generation/version)
@@ -352,15 +345,10 @@ impl ZeroCostZfsOperations for GcsBackend {
             generation
         );
 
-        let snapshot = GcsSnapshot {
-            name: name.to_string(),
-            dataset: dataset.name.clone(),
-            generation,
-            created_at: std::time::SystemTime::now(),
-        };
-
-        info!("GCS snapshot created: {}", name);
-        Ok(snapshot)
+        Err(NestGateError::not_implemented(format!(
+            "GCS snapshot creation not wired — generation {generation}. \
+             Requires GCS object versioning API via capability.call → songBird"
+        )))
     }
 
     /// Get GCS pool properties

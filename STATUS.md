@@ -1,6 +1,6 @@
 # NestGate - Current Status
 
-**Last Updated**: Aug 10, 2026 (Session 145: G72 Dependency Pandemic — jsonrpsee removed, dep audit, fmt sweep)
+**Last Updated**: Aug 10, 2026 (Session 146: Deep Debt Sweep — fake success, idiomatic Rust, hardcoding evolution)
 **Version**: 0.5.0
 
 ---
@@ -18,7 +18,7 @@ Inline markers:     none in committed production .rs (deny(todo), deny(unimpleme
 Unsafe code:        #![forbid(unsafe_code)] on ALL 18 crate roots (zero exceptions; quarantined crates deleted)
 println! in lib:    ZERO in core libs; installer retains stdout for interactive wizard UX
 Dead code:          ZERO #[allow(dead_code)]; auth_production + zero_cost_api_handlers purged (3,573 LOC); stale zero_cost module declarations removed
-Mocks in prod:      ZERO fabricated data; discovery endpoints are self-knowledge (local://); dev_environment gated behind dev-stubs feature
+Mocks in prod:      ZERO fabricated data; cloud backends (Azure/GCS/S3) return NotImplemented (no silent fake success); dev_environment gated behind dev-stubs feature
 TLS/crypto:         ureq + oxitls-rustcrypto-provider (pure Rust TLS); internal crypto BLAKE3; ring/reqwest/openssl ELIMINATED
 Encrypt-at-rest:    ChaCha20-Poly1305
 External deps:      Pure Rust — zero C build deps, no OpenSSL/ring, no cloud SDKs; jsonrpsee removed (G72); stale rustix removed from nestgate-config and nestgate-storage
@@ -45,6 +45,7 @@ CONTEXT.md:         Present (per wateringHole PUBLIC_SURFACE_STANDARD)
 Per-session detail (Sessions 43–135) lives in [`CHANGELOG.md`](CHANGELOG.md) and `docs/handoffs/`.
 
 Recent sessions:
+- **Session 146** (Aug 10): Deep debt sweep — production safety + idiomatic Rust. **Silent fake success** eliminated: Azure, GCS, S3 backends `create_dataset`/`create_snapshot`/`create_pool`/`get_pool_properties` now return `NestGateError::not_implemented` instead of `Ok(...)` with fabricated objects. `start_load_test` HTTP handler → 501 (was returning success JSON without running tests). Orchestrator `register_with_orchestrator` → explicit error (was setting local `registered = true` without outbound RPC). **String::from sweep**: ~90 `String::from("...")` → idiomatic `.into()` / direct `&str` / `.to_owned()` across 28 nestgate-zfs files (production + test). Clippy `#[must_use]` fix on `AccessControlConfig::production()`. **Hardcoding evolution**: `OBJECT_STORAGE_PATH_STYLE` env var wired into S3 path-style detection (was heuristic-only). Test assertions updated for new error-returning behavior (3 S3 tests + 1 orchestrator test). `cargo fmt --all`. 1,630 tests pass. Zero clippy.
 - **Session 145** (Aug 10): G72 Dependency Pandemic response. Full dep audit: ureq (2 production sites, Tier 2 — needs songBird `http.get`), axum 0.7.9 (Tier 2 — coordinated 0.8 bump), tokio (no `"full"`, `test-util` P3 split possible). **jsonrpsee removed** — parallel JSON-RPC stack unused in production (1,864 LOC deleted, 8 files, `jsonrpc_server/` module excised). jsonrpsee + soketto + transitive deps purged from Cargo.lock. `cargo fmt --all` sweep (pre-existing formatting drift). 9,342 lib tests pass. Zero clippy. G72 tier status: Tier 1 complete (no `"full"`, no env_logger, no reqwest/sled/ring/openssl); Tier 2 documented (ureq, axum 0.8); Tier 3 noted (test-util split).
 - **Session 144** (Aug 10): Wave 157e composition graph — HTTP transport parity. Created `content_ops` wrappers for `stat`, `ingest`, `query`, `fetch` (4 functions, 6 tests). Created `dataset_ops` facade module for `dataset.convergence` (1 function, 3 tests). Wired all 5 methods into HTTP transport handler (`handlers.rs`). Full RPC surface parity audit: UDS↔HTTP now aligned for all content.*/coord.*/footprint.*/dataset.* domains (41 methods; `route.register` P2 — infrastructure-only). Full workspace clippy zero warnings. 9,394 lib tests pass. Gossip injection points identified (11 CAS event sites for future swarmVine wiring).
 - **Session 143** (Aug 9): P0-B vertebrate evolution response. `content.ingest` confirmed shipped (590 LOC, 7 tests, both dispatch paths — westGate P0-B diagnosis was stale-depot, not missing code). `content.stat(hash)` implemented — CAS object metadata without data transfer (size, tier, provenance sidecar, timestamps; errors on missing hash; 4 tests). Self-audit: verified RPC surface vs `capability_registry.toml` — found `dataset.convergence` missing from `UNIX_SOCKET_SUPPORTED_METHODS` (announce gap — fixed), `content.stat` added to registry. All surfaces now sync: UDS dispatch, semantic router, SUPPORTED_METHODS, registry, announce payload.

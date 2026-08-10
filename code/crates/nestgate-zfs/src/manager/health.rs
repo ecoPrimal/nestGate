@@ -223,7 +223,7 @@ impl ZfsManager {
         // Verify ZFS is available
         if !crate::native::is_zfs_available().await {
             return Err(create_zfs_error(
-                String::from("ZFS is not available on this system"),
+                "ZFS is not available on this system",
                 ZfsOperation::SystemCheck,
             ));
         }

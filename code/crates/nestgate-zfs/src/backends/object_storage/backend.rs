@@ -227,20 +227,23 @@ impl ObjectStorageBackend {
         StorageProvider::detect_from_endpoint(endpoint)
     }
 
-    /// Endpoint substrings that indicate path-style S3 requests are needed.
+    /// Endpoint substrings that hint at path-style S3 requests.
     ///
     /// MinIO and local dev endpoints typically require path-style addressing.
-    /// This list is intentionally kept small — operators with non-standard
-    /// providers should set `OBJECT_STORAGE_PATH_STYLE=true` explicitly.
+    /// Operators with non-standard providers can override via
+    /// `OBJECT_STORAGE_PATH_STYLE=true|false`.
     const PATH_STYLE_ENDPOINT_HINTS: &[&str] =
         &["min.io", "minio", LOCALHOST_NAME, LOCALHOST_IPV4, ":9000"];
 
     /// Determine if path-style requests should be used.
     ///
-    /// Auto-detects based on well-known endpoint patterns in
-    /// [`Self::PATH_STYLE_ENDPOINT_HINTS`]. Returns `true` for MinIO,
-    /// localhost, and the conventional `:9000` API port.
+    /// Resolution order:
+    /// 1. `OBJECT_STORAGE_PATH_STYLE` env var (`true`/`false`) — explicit operator override
+    /// 2. Heuristic match against [`Self::PATH_STYLE_ENDPOINT_HINTS`]
     fn should_use_path_style(endpoint: &str) -> bool {
+        if let Ok(val) = std::env::var("OBJECT_STORAGE_PATH_STYLE") {
+            return val.eq_ignore_ascii_case("true") || val == "1";
+        }
         let endpoint_lower = endpoint.to_lowercase();
         Self::PATH_STYLE_ENDPOINT_HINTS
             .iter()

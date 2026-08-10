@@ -32,7 +32,7 @@ fn stub_snapshot_and_get() -> impl Fn(&[&str]) -> Result<String> + Send + Sync +
     |args: &[&str]| -> Result<String> {
         match args.first().copied() {
             Some("snapshot") => Ok(String::new()),
-            Some("get") => Ok(String::from("used\t2048\n")),
+            Some("get") => Ok("used\t2048\n".into()),
             _ => Err(create_zfs_error(
                 "Unexpected command in stub",
                 ZfsOperation::Command,
@@ -96,7 +96,7 @@ async fn snapshot_create_errors_when_at_capacity() {
 async fn snapshot_list_returns_parsed_rows() {
     let _g = ZfsCommandStubGuard::set(Box::new(|args: &[&str]| -> Result<String> {
         if args.first() == Some(&"list") {
-            return Ok(String::from("tank/ds@a\t100\ntank/ds@b\t200\n"));
+            return Ok("tank/ds@a\t100\ntank/ds@b\t200\n".into());
         }
         Ok(String::new())
     }));

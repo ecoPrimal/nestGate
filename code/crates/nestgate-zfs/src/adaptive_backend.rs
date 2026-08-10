@@ -92,9 +92,8 @@ impl AdaptiveZfsBackend {
             } else {
                 (
                     ZfsAvailability::InternalZfs,
-                    String::from(
-                        "ZFS commands available but kernel module not loaded - using internal implementation",
-                    ),
+                    "ZFS commands available but kernel module not loaded - using internal implementation"
+                        .into(),
                 )
             }
         } else if has_zfs_command || has_zpool_command {
@@ -107,9 +106,7 @@ impl AdaptiveZfsBackend {
         } else {
             (
                 ZfsAvailability::InternalZfs,
-                String::from(
-                    "No system ZFS detected - using NestGate's internal ZFS implementation",
-                ),
+                "No system ZFS detected - using NestGate's internal ZFS implementation".into(),
             )
         };
 

@@ -80,9 +80,9 @@ mod tests {
     fn stub_for_trait_forwards() -> impl Fn(&[&str]) -> Result<String> + Send + Sync + 'static {
         |args: &[&str]| -> Result<String> {
             match args.first().copied() {
-                Some("get") => Ok(String::from(
-                    "used\t64\navailable\t1024\nmountpoint\t/tmp\nsize\t1088\n",
-                )),
+                Some("get") => {
+                    Ok("used\t64\navailable\t1024\nmountpoint\t/tmp\nsize\t1088\n".into())
+                }
                 Some("list") => {
                     if args.contains(&"snapshot") {
                         Ok("tank/ds@s1\t128\n".into())

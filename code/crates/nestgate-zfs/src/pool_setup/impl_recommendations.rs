@@ -16,7 +16,7 @@ impl ZfsPoolSetup {
     pub fn recommend_pool_config(&self, pool_name: &str) -> CoreResult<PoolSetupConfig> {
         if pool_name.is_empty() {
             return Err(NestGateError::internal_error(
-                String::from("Pool name cannot be empty"),
+                "Pool name cannot be empty",
                 "pool_validation",
             ));
         }
@@ -73,9 +73,9 @@ impl ZfsPoolSetup {
 
         // Set up default properties
         let mut properties = HashMap::new();
-        properties.insert(String::from("ashift"), String::from("12"));
-        properties.insert(String::from("autoexpand"), String::from("on"));
-        properties.insert(String::from("autotrim"), String::from("on"));
+        properties.insert("ashift".into(), "12".into());
+        properties.insert("autoexpand".into(), "on".into());
+        properties.insert("autotrim".into(), "on".into());
 
         // Configure tier mappings
         let mut tier_mappings = HashMap::new();
@@ -199,9 +199,9 @@ impl ZfsPoolSetup {
         let available = self.get_available_devices();
 
         if available.is_empty() {
-            recommendations.push(String::from("No available devices found for pool creation"));
+            recommendations.push("No available devices found for pool creation".into());
         } else if available.len() == 1 {
-            recommendations.push(String::from("Consider adding more devices for redundancy"));
+            recommendations.push("Consider adding more devices for redundancy".into());
         } else if available.len() >= 3 {
             recommendations.push(
                 "RAID-Z configuration recommended for optimal redundancy and performance"

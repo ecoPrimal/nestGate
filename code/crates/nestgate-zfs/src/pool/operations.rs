@@ -153,30 +153,24 @@ mod tests {
         let argv = zpool_create_argv("tank", &["/dev/sda".into(), "/dev/sdb".into()]);
         assert_eq!(
             argv,
-            vec![
-                String::from("create"),
-                String::from("tank"),
-                String::from("/dev/sda"),
-                String::from("/dev/sdb")
-            ]
+            vec!["create", "tank", "/dev/sda", "/dev/sdb"]
+                .into_iter()
+                .map(String::from)
+                .collect::<Vec<_>>()
         );
     }
 
     #[test]
     fn zpool_create_argv_empty_devices() {
         let argv = zpool_create_argv("z", &[]);
-        assert_eq!(argv, vec![String::from("create"), String::from("z")]);
+        assert_eq!(argv, vec!["create".to_owned(), "z".to_owned()]);
     }
 
     #[test]
     fn zpool_destroy_argv_force_and_pool_name() {
         assert_eq!(
             zpool_destroy_argv("my-pool"),
-            [
-                String::from("destroy"),
-                String::from("-f"),
-                String::from("my-pool")
-            ]
+            ["destroy".to_owned(), "-f".to_owned(), "my-pool".to_owned()]
         );
     }
 
@@ -184,7 +178,7 @@ mod tests {
     fn zpool_scrub_argv_pool_name() {
         assert_eq!(
             zpool_scrub_argv("tank"),
-            [String::from("scrub"), String::from("tank")]
+            ["scrub".to_owned(), "tank".to_owned()]
         );
     }
 }

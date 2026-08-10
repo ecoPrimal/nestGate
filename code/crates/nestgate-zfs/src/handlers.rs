@@ -383,7 +383,7 @@ impl ZfsRequestHandler {
         details.insert("zfs_binary".into(), zfs_bin.clone());
 
         Ok(ZfsResponse::Health {
-            status: String::from(status),
+            status: status.into(),
             details,
         })
     }

@@ -3,7 +3,7 @@
 
 #![expect(
     clippy::unnecessary_wraps,
-    reason = "Stub APIs use Result for forward-compatible error propagation"
+    reason = "Cloud backend APIs use Result for forward-compatible error propagation"
 )]
 
 //! **AZURE BLOB STORAGE BACKEND**
@@ -363,17 +363,10 @@ impl ZeroCostZfsOperations for AzureBackend {
             prefix, azure_tier
         );
 
-        let dataset = AzureDataset {
-            name: name.to_string(),
-            pool: pool.name.clone(),
-            prefix,
-            tier,
-            azure_tier,
-            created_at: std::time::SystemTime::now(),
-        };
-
-        info!("Azure dataset created: {}", name);
-        Ok(dataset)
+        Err(NestGateError::not_implemented(format!(
+            "Azure Blob dataset creation not wired — prefix {prefix} (tier {azure_tier:?}). \
+             Requires Azure REST API integration via capability.call → songBird"
+        )))
     }
 
     /// Create Azure snapshot (blob snapshot)
@@ -393,15 +386,10 @@ impl ZeroCostZfsOperations for AzureBackend {
             snapshot_id
         );
 
-        let snapshot = AzureSnapshot {
-            name: name.to_string(),
-            dataset: dataset.name.clone(),
-            snapshot_id,
-            created_at: std::time::SystemTime::now(),
-        };
-
-        info!("Azure snapshot created: {}", name);
-        Ok(snapshot)
+        Err(NestGateError::not_implemented(format!(
+            "Azure Blob snapshot creation not wired — snapshot {snapshot_id}. \
+             Requires Azure REST API integration via capability.call → songBird"
+        )))
     }
 
     /// Get Azure pool properties
@@ -413,21 +401,11 @@ impl ZeroCostZfsOperations for AzureBackend {
         // HEAD /{container}?restype=container
         // Returns: x-ms-blob-public-access, x-ms-has-immutability-policy, etc.
         // Future: Implement when using UniversalObjectStorage
-        let properties = AzureProperties {
-            account: self.client.account.clone(),
-            public_access: false, // Future: Query via HEAD request
-            encryption: true,     // Azure encrypts by default (server-side)
-            custom: {
-                let mut map = HashMap::new();
-                map.insert(
-                    "config_source".into(),
-                    cloud_helpers::config_source_custom_value(&self.client.config_source),
-                );
-                map
-            },
-        };
-
-        Ok(properties)
+        Err(NestGateError::not_implemented(format!(
+            "Azure pool properties not wired — pool {}. \
+             Requires HEAD /{{}}/restype=container via capability.call → songBird",
+            pool.name
+        )))
     }
 
     /// List Azure pools (containers)

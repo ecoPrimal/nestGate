@@ -143,18 +143,16 @@ impl ZfsService {
     pub fn register_with_orchestrator(&mut self, _orchestrator_url: &str) -> Result<()> {
         info!("Registering service {} with orchestrator", self.node_id);
 
-        // Outbound registration RPC/HTTP to the orchestrator is not implemented yet; this path
-        // still validates configuration and records local registration state for the process.
-
         if self.config.orchestrator_endpoints.is_empty() {
             bail!("No orchestrator endpoints configured");
         }
 
-        // Mark as registered
-        self.registered_with_orchestrator = true;
-
-        debug!("Service {} registered successfully", self.node_id);
-        Ok(())
+        bail!(
+            "Orchestrator registration not wired — outbound RPC to {:?} requires \
+             capability.call → orchestrator primal. Local self-registration is \
+             insufficient for production coordination.",
+            self.config.orchestrator_endpoints
+        )
     }
 
     /// Perform health check and return status
@@ -320,21 +318,24 @@ mod tests {
     fn endpoints_and_capabilities_and_registration() {
         let s = ZfsService::new(sample_config());
         assert_eq!(s.endpoints(), vec!["127.0.0.1:9000"]);
-        assert_eq!(s.capabilities(), &[String::from("pool")]);
+        assert_eq!(s.capabilities(), &["pool".to_owned()]);
         let reg = s.create_registration();
         assert_eq!(reg.service_type, "zfs-storage");
-        assert_eq!(reg.capabilities, vec![String::from("pool")]);
+        assert_eq!(reg.capabilities, vec!["pool".to_owned()]);
         assert!(reg.endpoints.iter().any(|e| e.contains(':')));
     }
 
     #[test]
-    fn register_and_report_health_and_unregister() {
+    fn register_fails_without_outbound_rpc() {
         let mut s = ZfsService::new(sample_config());
         assert!(!s.is_registered());
-        assert!(s.register_with_orchestrator("http://x").is_ok());
-        assert!(s.is_registered());
-        assert!(s.report_health().is_ok());
-        assert!(s.unregister().is_ok());
+        let err = s
+            .register_with_orchestrator("http://x")
+            .expect_err("registration should fail without real outbound RPC");
+        assert!(
+            err.to_string().contains("not wired"),
+            "expected not-wired error, got: {err}"
+        );
         assert!(!s.is_registered());
     }
 

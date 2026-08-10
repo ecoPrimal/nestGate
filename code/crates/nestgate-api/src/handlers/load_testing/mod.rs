@@ -61,29 +61,13 @@ pub struct PerformanceBaseline {
 /// **START LOAD TEST HANDLER**
 ///
 /// Start a new load test execution with the specified configuration.
+///
+/// Load test execution requires a performance testing capability provider.
+/// Returns `501 NOT IMPLEMENTED` until wired.
 pub async fn start_load_test(
-    Json(config): Json<LoadTestConfig>,
+    Json(_config): Json<LoadTestConfig>,
 ) -> Result<Json<LoadTestExecution>, StatusCode> {
-    // Generate test ID with graceful fallback for system time errors
-    let test_id = match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
-        Ok(duration) => format!("test_{}", duration.as_secs()),
-        Err(e) => {
-            // Fallback: If system time is misconfigured (before 1970), use UUID
-            tracing::warn!(
-                error = ?e,
-                "System time before UNIX epoch, using UUID fallback for test ID"
-            );
-            format!("test_fallback_{}", uuid::Uuid::new_v4())
-        }
-    };
-
-    let execution = LoadTestExecution {
-        config,
-        started_at: Some(std::time::SystemTime::now()),
-        test_id,
-    };
-
-    Ok(Json(execution))
+    Err(StatusCode::NOT_IMPLEMENTED)
 }
 
 /// Retrieve results from completed load tests.

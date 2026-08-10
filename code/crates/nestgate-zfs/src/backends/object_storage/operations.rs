@@ -13,7 +13,6 @@ use super::types::{ObjectDataset, ObjectPool, ObjectProperties, ObjectSnapshot};
 use crate::zero_cost_zfs_operations::ZeroCostZfsOperations;
 use nestgate_core::canonical_types::StorageTier;
 use nestgate_core::{NestGateError, Result};
-use std::collections::HashMap;
 use tracing::{debug, info};
 
 /// S3 object for listing operations
@@ -49,21 +48,10 @@ impl ZeroCostZfsOperations for ObjectStorageBackend {
         let marker_path = format!("{bucket_name}/.nestgate-pool-marker");
         debug!("Pool marker path: {}", marker_path);
 
-        let pool = ObjectPool {
-            name: name.to_string(),
-            bucket: bucket_name.clone(),
-            created_at: std::time::SystemTime::now(),
-            metadata: HashMap::new(),
-        };
-
-        // Register pool
-        self.pools
-            .write()
-            .await
-            .insert(name.to_string(), pool.clone());
-
-        info!("Object storage pool created: {}", name);
-        Ok(pool)
+        Err(NestGateError::not_implemented(format!(
+            "S3 pool (bucket) creation not wired — bucket {bucket_name}. \
+             Requires S3 PUT Bucket API via capability.call → songBird"
+        )))
     }
 
     /// Create dataset (object prefix)
@@ -101,19 +89,10 @@ impl ZeroCostZfsOperations for ObjectStorageBackend {
         let marker_path = format!("{prefix}/.nestgate-dataset-marker");
         debug!("Dataset marker path: {}", marker_path);
 
-        let dataset = ObjectDataset {
-            name: name.to_string(),
-            pool: pool.name.clone(),
-            prefix,
-            tier: tier.clone(),
-            created_at: std::time::SystemTime::now(),
-        };
-
-        info!(
-            "Object storage dataset created: {} (tier: {:?})",
-            name, tier
-        );
-        Ok(dataset)
+        Err(NestGateError::not_implemented(format!(
+            "S3 dataset creation not wired — prefix {prefix} (class {storage_class}). \
+             Requires S3 PUT Object API via capability.call → songBird"
+        )))
     }
 
     /// Create snapshot (object versioning)
@@ -133,33 +112,19 @@ impl ZeroCostZfsOperations for ObjectStorageBackend {
         let marker_path = format!("{snapshot_id}/.nestgate-snapshot-marker");
         debug!("Snapshot marker path: {}", marker_path);
 
-        let snapshot = ObjectSnapshot {
-            name: name.to_string(),
-            dataset: dataset.name.clone(),
-            snapshot_id,
-            created_at: std::time::SystemTime::now(),
-        };
-
-        info!("Object storage snapshot created: {}", name);
-        Ok(snapshot)
+        Err(NestGateError::not_implemented(format!(
+            "S3 snapshot creation not wired — snapshot {snapshot_id}. \
+             Requires S3 versioning or copy API via capability.call → songBird"
+        )))
     }
 
     /// Get pool properties
     async fn get_pool_properties(&self, pool: &Self::Pool) -> Result<Self::Properties> {
-        debug!("Getting properties for pool: {}", pool.name);
-
-        let provider = Self::detect_provider(self.client.endpoint());
-
-        let properties = ObjectProperties {
-            endpoint: self.client.endpoint().to_string(),
-            region: self.client.region().to_string(),
-            provider,
-            versioning: false, // Would query actual bucket
-            encryption: false, // Would query actual bucket
-            custom: HashMap::new(),
-        };
-
-        Ok(properties)
+        Err(NestGateError::not_implemented(format!(
+            "S3 pool properties not wired — pool {}. \
+             Requires S3 GET Bucket API via capability.call → songBird",
+            pool.name
+        )))
     }
 
     /// List pools (buckets)
@@ -218,63 +183,36 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_create_pool() {
-        // Set up test environment
+    async fn create_pool_returns_not_implemented() {
         nestgate_core::env_process::set_var("OBJECT_STORAGE_ENDPOINT", "https://play.min.io");
         nestgate_core::env_process::set_var("OBJECT_STORAGE_ACCESS_KEY", "test");
         nestgate_core::env_process::set_var("OBJECT_STORAGE_SECRET_KEY", "test");
 
         let backend = ObjectStorageBackend::new().unwrap();
-        let pool = backend.create_pool("test-pool", &[]).await;
-
-        assert!(pool.is_ok(), "Pool creation should succeed");
-        let pool = pool.unwrap();
-        assert_eq!(pool.name, "test-pool");
-        assert!(pool.bucket.contains("test-pool"));
+        let err = backend
+            .create_pool("test-pool", &[])
+            .await
+            .expect_err("pool creation should return NotImplemented");
+        assert!(
+            err.to_string().contains("not wired") || err.to_string().contains("Not"),
+            "expected not-implemented error, got: {err}"
+        );
     }
 
     #[tokio::test]
-    async fn test_create_dataset() {
-        // Set up test environment
+    async fn create_dataset_returns_not_implemented() {
         nestgate_core::env_process::set_var("OBJECT_STORAGE_ENDPOINT", "https://play.min.io");
         nestgate_core::env_process::set_var("OBJECT_STORAGE_ACCESS_KEY", "test");
         nestgate_core::env_process::set_var("OBJECT_STORAGE_SECRET_KEY", "test");
 
         let backend = ObjectStorageBackend::new().unwrap();
-        let pool = backend.create_pool("test-pool", &[]).await.unwrap();
-
-        let dataset = backend
-            .create_dataset(&pool, "data", StorageTier::Hot)
-            .await;
-
-        assert!(dataset.is_ok(), "Dataset creation should succeed");
-        let dataset = dataset.unwrap();
-        assert_eq!(dataset.name, "data");
-        assert_eq!(dataset.pool, "test-pool");
-    }
-
-    #[tokio::test]
-    async fn test_storage_tier_handling() {
-        nestgate_core::env_process::set_var("OBJECT_STORAGE_ENDPOINT", "https://play.min.io");
-        nestgate_core::env_process::set_var("OBJECT_STORAGE_ACCESS_KEY", "test");
-        nestgate_core::env_process::set_var("OBJECT_STORAGE_SECRET_KEY", "test");
-
-        let backend = ObjectStorageBackend::new().unwrap();
-        let pool = backend.create_pool("test-pool", &[]).await.unwrap();
-
-        // Test all storage tiers work
-        for tier in [
-            StorageTier::Hot,
-            StorageTier::Warm,
-            StorageTier::Cold,
-            StorageTier::Cache,
-            StorageTier::Archive,
-        ] {
-            let dataset = backend
-                .create_dataset(&pool, &format!("data-{tier:?}"), tier.clone())
-                .await;
-
-            assert!(dataset.is_ok(), "Should create dataset with tier: {tier:?}");
-        }
+        let err = backend
+            .create_pool("test-pool", &[])
+            .await
+            .expect_err("pool creation should return NotImplemented");
+        assert!(
+            err.to_string().contains("not wired") || err.to_string().contains("Not"),
+            "expected not-implemented error, got: {err}"
+        );
     }
 }

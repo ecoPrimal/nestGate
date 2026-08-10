@@ -96,10 +96,7 @@ impl ZfsManager {
         // Initialize pool manager first (foundation for everything else)
         let pool_manager = Arc::new(ZfsPoolManager::new(&shared_config).await.map_err(|e| {
             error!("Failed to initialize ZFS pool manager: {}", e);
-            create_zfs_error(
-                String::from("Pool manager: error details"),
-                ZfsOperation::SystemCheck,
-            )
+            create_zfs_error("Pool manager: error details", ZfsOperation::SystemCheck)
         })?);
 
         // Initialize dataset manager with shared config (zero-copy)
@@ -135,10 +132,7 @@ impl ZfsManager {
             .await
             .map_err(|e| {
                 error!("Failed to initialize tier manager: {}", e);
-                create_zfs_error(
-                    String::from("Tier manager: error details"),
-                    ZfsOperation::SystemCheck,
-                )
+                create_zfs_error("Tier manager: error details", ZfsOperation::SystemCheck)
             })?,
         );
 
@@ -147,10 +141,7 @@ impl ZfsManager {
             ZfsHealthMonitor::new(Arc::clone(&pool_manager), Arc::clone(&dataset_manager))
                 .map_err(|e| {
                     error!("Failed to initialize ZFS health monitor: {}", e);
-                    create_zfs_error(
-                        String::from("Health monitor: error details"),
-                        ZfsOperation::SystemCheck,
-                    )
+                    create_zfs_error("Health monitor: error details", ZfsOperation::SystemCheck)
                 })?,
         ));
 

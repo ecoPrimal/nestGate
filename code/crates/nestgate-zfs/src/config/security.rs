@@ -83,7 +83,7 @@ impl Default for SecurityConfig {
     fn default() -> Self {
         Self {
             enable_encryption: false,
-            encryption_algorithm: String::from("aes-256-gcm"),
+            encryption_algorithm: "aes-256-gcm".into(),
             key_management: KeyManagementConfig::default(),
             access_control: AccessControlConfig::default(),
         }
@@ -137,7 +137,7 @@ impl Default for AccessControlConfig {
     /// Returns the default instance
     fn default() -> Self {
         Self {
-            default_permissions: String::from("755"),
+            default_permissions: "755".into(),
             user_rules: HashMap::new(),
             group_rules: HashMap::new(),
         }
@@ -146,26 +146,20 @@ impl Default for AccessControlConfig {
 
 impl AccessControlConfig {
     /// Create production-optimized access control configuration
+    #[must_use]
     pub fn production() -> Self {
         let mut user_rules = HashMap::new();
-        user_rules.insert(String::from("zfs-admin"), vec![String::from("all")]);
-        user_rules.insert(String::from("backup"), vec![String::from("read")]);
+        user_rules.insert("zfs-admin".into(), vec!["all".into()]);
+        user_rules.insert("backup".into(), vec!["read".into()]);
 
         let mut group_rules = HashMap::new();
         group_rules.insert(
-            String::from("zfs-operators"),
-            [
-                String::from("read"),
-                String::from("create"),
-                String::from("snapshot"),
-            ]
-            .iter()
-            .map(std::string::ToString::to_string)
-            .collect(),
+            "zfs-operators".into(),
+            vec!["read".into(), "create".into(), "snapshot".into()],
         );
 
         Self {
-            default_permissions: String::from("750"),
+            default_permissions: "750".into(),
             user_rules,
             group_rules,
         }
@@ -178,7 +172,7 @@ impl SecurityConfig {
     pub fn production() -> Self {
         Self {
             enable_encryption: true,
-            encryption_algorithm: String::from("aes-256-gcm"),
+            encryption_algorithm: "aes-256-gcm".into(),
             key_management: KeyManagementConfig::production(),
             access_control: AccessControlConfig::production(),
         }

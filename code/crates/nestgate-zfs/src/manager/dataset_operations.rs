@@ -65,7 +65,7 @@ impl ZfsManager {
             .await
             .map_err(|_e| {
                 create_zfs_error(
-                    String::from("Failed to create dataset: error details"),
+                    "Failed to create dataset: error details",
                     ZfsOperation::DatasetCreate,
                 )
             })?;
@@ -89,7 +89,7 @@ impl ZfsManager {
             .await
             .map_err(|_e| {
                 create_zfs_error(
-                    String::from("Failed to destroy dataset: error details"),
+                    "Failed to destroy dataset: error details",
                     ZfsOperation::DatasetCreate,
                 )
             })?;
@@ -114,7 +114,7 @@ impl ZfsManager {
             .await
             .map_err(|_e| {
                 create_zfs_error(
-                    String::from("Failed to list snapshots: error details"),
+                    "Failed to list snapshots: error details",
                     ZfsOperation::DatasetCreate,
                 )
             })
@@ -140,24 +140,18 @@ mod tests {
     #[test]
     fn test_dataset_analyzer_with_config() {
         let mut analyzer = DatasetAnalyzer::new();
-        analyzer
-            .config
-            .insert(String::from("key1"), String::from("value1"));
-        analyzer
-            .config
-            .insert(String::from("key2"), String::from("value2"));
+        analyzer.config.insert("key1".into(), "value1".into());
+        analyzer.config.insert("key2".into(), "value2".into());
 
         assert_eq!(analyzer.config.len(), 2);
-        assert_eq!(analyzer.config.get("key1"), Some(&String::from("value1")));
-        assert_eq!(analyzer.config.get("key2"), Some(&String::from("value2")));
+        assert_eq!(analyzer.config.get("key1"), Some(&"value1".into()));
+        assert_eq!(analyzer.config.get("key2"), Some(&"value2".into()));
     }
 
     #[test]
     fn test_dataset_analyzer_clone() {
         let mut analyzer = DatasetAnalyzer::new();
-        analyzer
-            .config
-            .insert(String::from("test"), String::from("value"));
+        analyzer.config.insert("test".into(), "value".into());
 
         let cloned = analyzer.clone();
         assert_eq!(analyzer.config, cloned.config);

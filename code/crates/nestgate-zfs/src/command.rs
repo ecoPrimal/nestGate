@@ -226,9 +226,9 @@ impl CommandResult {
             }
 
             if let Some((key, value)) = line.split_once('\t') {
-                properties.insert(String::from(key.trim()), String::from(value.trim()));
+                properties.insert(key.trim().into(), value.trim().into());
             } else if let Some((key, value)) = line.split_once(' ') {
-                properties.insert(String::from(key.trim()), String::from(value.trim()));
+                properties.insert(key.trim().into(), value.trim().into());
             }
         }
 
@@ -259,7 +259,7 @@ impl CommandResult {
 
             let mut row = HashMap::new();
             for (header, value) in headers.iter().zip(values.iter()) {
-                row.insert(String::from(*header), String::from(*value));
+                row.insert((*header).into(), (*value).into());
             }
             results.push(row);
         }
@@ -307,11 +307,11 @@ impl ZfsOperations {
             let parts: Vec<&str> = line.split('\t').collect();
             if parts.len() >= 5 {
                 pools.push(ZfsPool {
-                    name: String::from(parts[0]),
-                    size: String::from(parts[1]),
-                    allocated: String::from(parts[2]),
-                    free: String::from(parts[3]),
-                    health: String::from(parts[4]),
+                    name: parts[0].into(),
+                    size: parts[1].into(),
+                    allocated: parts[2].into(),
+                    free: parts[3].into(),
+                    health: parts[4].into(),
                 });
             }
         }
@@ -336,7 +336,7 @@ impl ZfsOperations {
         let errors = output.contains("errors:") && !output.contains("errors: No known data errors");
 
         Ok(PoolStatus {
-            name: String::from(pool_name),
+            name: pool_name.into(),
             state: if healthy {
                 "ONLINE".into()
             } else {
@@ -372,11 +372,11 @@ impl ZfsOperations {
             let parts: Vec<&str> = line.split('\t').collect();
             if parts.len() >= 5 {
                 datasets.push(ZfsDataset {
-                    name: String::from(parts[0]),
-                    used: String::from(parts[1]),
-                    available: String::from(parts[2]),
-                    referenced: String::from(parts[3]),
-                    mountpoint: String::from(parts[4]),
+                    name: parts[0].into(),
+                    used: parts[1].into(),
+                    available: parts[2].into(),
+                    referenced: parts[3].into(),
+                    mountpoint: parts[4].into(),
                 });
             }
         }
@@ -478,9 +478,9 @@ impl ZfsOperations {
             let parts: Vec<&str> = line.split('\t').collect();
             if parts.len() >= 3 {
                 snapshots.push(ZfsSnapshot {
-                    name: String::from(parts[0]),
-                    used: String::from(parts[1]),
-                    creation: String::from(parts[2]),
+                    name: parts[0].into(),
+                    used: parts[1].into(),
+                    creation: parts[2].into(),
                 });
             }
         }
@@ -501,7 +501,7 @@ fn extract_scan_status(output: &str) -> String {
     for line in output.lines() {
         let line = line.trim();
         if line.starts_with("scan:") {
-            return String::from(line.strip_prefix("scan:").unwrap_or("").trim());
+            return line.strip_prefix("scan:").unwrap_or("").trim().into();
         }
     }
     "none requested".into()

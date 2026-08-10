@@ -40,7 +40,7 @@ pub fn zero_cost_pool_from_zfs_properties(
         available,
         health: properties
             .get("health")
-            .map_or_else(|| String::from("UNKNOWN"), std::string::ToString::to_string),
+            .map_or_else(|| "UNKNOWN".into(), std::string::ToString::to_string),
         properties: properties.clone(),
         created_at,
     }
@@ -101,7 +101,7 @@ impl<
     ) -> Result<ZeroCostPoolInfo> {
         if !self.can_create_more_pools().await {
             return Err(create_zfs_error(
-                String::from("Cannot create pool: maximum pools reached"),
+                "Cannot create pool: maximum pools reached",
                 ZfsOperation::PoolCreate,
             ));
         }
@@ -257,10 +257,8 @@ mod tests {
     fn stub_ok_pool_flow() -> impl Fn(&[&str]) -> Result<String> + Send + Sync + 'static {
         |args: &[&str]| -> Result<String> {
             match args.first().copied() {
-                Some("get") => Ok(String::from(
-                    "size\t4096\nallocated\t1024\nhealth\tONLINE\n",
-                )),
-                Some("list") => Ok(String::from("stub-pool\t100\t10\t90\tONLINE\n")),
+                Some("get") => Ok("size\t4096\nallocated\t1024\nhealth\tONLINE\n".into()),
+                Some("list") => Ok("stub-pool\t100\t10\t90\tONLINE\n".into()),
                 _ => Ok(String::new()),
             }
         }
