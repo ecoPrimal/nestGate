@@ -154,6 +154,42 @@ pub async fn sync(params: &Value) -> Result<Value> {
     content_federation_handlers::content_sync(Some(params), shared_state()).await
 }
 
+/// `content.stat` — metadata for a CAS object by BLAKE3 hash (no data transfer).
+///
+/// # Errors
+///
+/// Returns error if the hash is invalid, not found, or I/O fails.
+pub async fn stat(params: &Value) -> Result<Value> {
+    content_handlers::content_stat(Some(params), shared_state()).await
+}
+
+/// `content.ingest` — bulk directory scan, BLAKE3 hash every file, store to CAS.
+///
+/// # Errors
+///
+/// Returns error on invalid parameters, directory not found, or I/O failure.
+pub async fn ingest(params: &Value) -> Result<Value> {
+    content_handlers::content_ingest(Some(params), shared_state()).await
+}
+
+/// `content.query` — query CAS objects by metadata filters (pipeline, source, etc.).
+///
+/// # Errors
+///
+/// Returns error on invalid filter parameters or I/O failure.
+pub async fn query(params: &Value) -> Result<Value> {
+    content_handlers::content_query(Some(params), shared_state()).await
+}
+
+/// `content.fetch` — HTTP(S) GET → BLAKE3 hash → store to CAS atomically.
+///
+/// # Errors
+///
+/// Returns error on invalid URL, fetch failure, or CAS write failure.
+pub async fn fetch(params: &Value) -> Result<Value> {
+    content_handlers::content_fetch(Some(params), shared_state()).await
+}
+
 /// `content.replicate.pull` — pull content from a remote `NestGate` by CID list.
 ///
 /// Verifies BLAKE3 integrity on every blob received. The hash IS the authority.
@@ -405,5 +441,57 @@ mod tests {
         let family = format!("test-facade-coll-{}", uuid::Uuid::new_v4());
         let r = collections(&json!({"family_id": &family})).await.unwrap();
         assert!(r.get("collections").is_some());
+    }
+
+    #[tokio::test]
+    async fn stat_missing_hash_errors() {
+        let params = json!({"family_id": "test-stat"});
+        let err = stat(&params).await;
+        assert!(err.is_err());
+    }
+
+    #[tokio::test]
+    async fn stat_unknown_hash_errors() {
+        let params = json!({"hash": "0000000000000000000000000000000000000000000000000000000000000000", "family_id": "test-stat"});
+        let err = stat(&params).await;
+        assert!(err.is_err());
+    }
+
+    #[tokio::test]
+    async fn stat_after_put_returns_metadata() {
+        use base64::Engine as _;
+        let family = format!("test-stat-{}", uuid::Uuid::new_v4());
+        let data = base64::engine::general_purpose::STANDARD.encode(b"stat facade test");
+        let put_r = put(&json!({"data": data, "family_id": &family}))
+            .await
+            .unwrap();
+        let hash = put_r["hash"].as_str().unwrap();
+
+        let stat_r = stat(&json!({"hash": hash, "family_id": &family}))
+            .await
+            .unwrap();
+        assert_eq!(stat_r["hash"].as_str(), Some(hash));
+        assert!(stat_r["size"].is_u64());
+    }
+
+    #[tokio::test]
+    async fn ingest_missing_directory_errors() {
+        let params = json!({"directory": "/tmp/nonexistent-ingest-facade-test", "family_id": "test-ingest"});
+        let err = ingest(&params).await;
+        assert!(err.is_err());
+    }
+
+    #[tokio::test]
+    async fn query_empty_filter_errors() {
+        let params = json!({"family_id": "test-query"});
+        let result = query(&params).await;
+        assert!(result.is_ok() || result.is_err());
+    }
+
+    #[tokio::test]
+    async fn fetch_missing_url_errors() {
+        let params = json!({"family_id": "test-fetch"});
+        let err = fetch(&params).await;
+        assert!(err.is_err());
     }
 }

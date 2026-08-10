@@ -70,6 +70,7 @@ pub mod btsp_server_handshake;
 pub mod content_ops;
 pub(crate) mod content_stream;
 pub mod coord_ops;
+pub mod dataset_ops;
 pub mod footprint_ops;
 pub mod ipc_protocol;
 pub mod jsonrpc_client;

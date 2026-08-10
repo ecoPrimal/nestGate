@@ -150,6 +150,10 @@ impl<S: StorageBackend + 'static> RpcMethodHandler for NestGateRpcHandler<S> {
                 nestgate_core::rpc::content_ops::replicate_pull(&params).await
             }
             "content.sync" => nestgate_core::rpc::content_ops::sync(&params).await,
+            "content.stat" => nestgate_core::rpc::content_ops::stat(&params).await,
+            "content.ingest" => nestgate_core::rpc::content_ops::ingest(&params).await,
+            "content.query" => nestgate_core::rpc::content_ops::query(&params).await,
+            "content.fetch" => nestgate_core::rpc::content_ops::fetch(&params).await,
             "content.store_stream" => {
                 nestgate_core::rpc::content_ops::store_stream_begin(&params).await
             }
@@ -184,6 +188,11 @@ impl<S: StorageBackend + 'static> RpcMethodHandler for NestGateRpcHandler<S> {
             "footprint.list" => nestgate_core::rpc::footprint_ops::list(&params).await,
             "footprint.delete" => nestgate_core::rpc::footprint_ops::delete(&params).await,
             "footprint.history" => nestgate_core::rpc::footprint_ops::history(&params).await,
+
+            // Dataset domain — CAS provenance analysis
+            "dataset.convergence" => {
+                nestgate_core::rpc::dataset_ops::convergence(&params).await
+            }
 
             // Lifecycle
             "lifecycle.status" => self.handle_lifecycle_status(),
