@@ -30,7 +30,7 @@
 //!
 //! **Result**: custom lock-free code replaced with maintainable, auditable abstractions.
 
-use crossbeam::channel::{Receiver, Sender, unbounded};
+use crossbeam_channel::{Receiver, Sender, unbounded};
 use dashmap::DashMap;
 use std::hash::Hash;
 use std::sync::Arc;

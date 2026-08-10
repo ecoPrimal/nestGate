@@ -24,7 +24,6 @@ ureq = { workspace = true }
 rustls-rustcrypto = { workspace = true }
 bytes = { workspace = true, features = ["serde"] }
 chrono = { workspace = true }
-bincode = { workspace = true }
 etcetera = { workspace = true }
 futures-util = { workspace = true }
 rustix = { workspace = true }
