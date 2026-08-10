@@ -219,9 +219,7 @@ impl CapabilityRouter {
         );
 
         let endpoint = TransportEndpoint::uds(&coordinator_path);
-        let Ok(mut client) =
-            crate::rpc::JsonRpcClient::connect_btsp_aware(&endpoint).await
-        else {
+        let Ok(mut client) = crate::rpc::JsonRpcClient::connect_btsp_aware(&endpoint).await else {
             warn!(
                 "Could not connect to ecosystem coordinator at {} for capability.call",
                 coordinator_path.display()
@@ -293,8 +291,8 @@ fn discover_coordinator_for_routing() -> Option<std::path::PathBuf> {
             return Some(p);
         }
     }
-    if let Ok(dir) = std::env::var("ECOSYSTEM_SOCKET_DIR")
-        .or_else(|_| std::env::var("BIOMEOS_SOCKET_DIR"))
+    if let Ok(dir) =
+        std::env::var("ECOSYSTEM_SOCKET_DIR").or_else(|_| std::env::var("BIOMEOS_SOCKET_DIR"))
     {
         let p = PathBuf::from(dir).join(format!("{eco}.sock"));
         if p.exists() {

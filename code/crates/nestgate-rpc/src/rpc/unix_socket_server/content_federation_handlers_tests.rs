@@ -6,8 +6,7 @@ use crate::rpc::unix_socket_server::federation_blob_transfer::FEDERATION_STREAM_
 use serde_json::json;
 
 fn mock_state() -> StorageState {
-    StorageState::new()
-        .unwrap_or_else(|_| panic!("StorageState::new failed in test — check env"))
+    StorageState::new().unwrap_or_else(|_| panic!("StorageState::new failed in test — check env"))
 }
 
 #[tokio::test]

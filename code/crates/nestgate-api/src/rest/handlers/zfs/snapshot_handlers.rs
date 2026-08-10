@@ -112,7 +112,10 @@ pub async fn get_snapshot(
         Ok(snapshots) => {
             let found = snapshots.iter().find(|s| s.name == full_name);
             if let Some(snap) = found {
-                (StatusCode::OK, Json(json!({"status": "success", "snapshot": snap})))
+                (
+                    StatusCode::OK,
+                    Json(json!({"status": "success", "snapshot": snap})),
+                )
                     .into_response()
             } else {
                 (

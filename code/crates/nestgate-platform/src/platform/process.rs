@@ -59,7 +59,8 @@ pub fn runtime_base_dir() -> String {
     }
     #[cfg(not(unix))]
     {
-        std::env::var("TEMP").unwrap_or_else(|_| std::env::temp_dir().to_string_lossy().into_owned())
+        std::env::var("TEMP")
+            .unwrap_or_else(|_| std::env::temp_dir().to_string_lossy().into_owned())
     }
 }
 
@@ -69,7 +70,10 @@ mod tests {
 
     #[test]
     fn current_process_is_alive() {
-        #[expect(clippy::cast_possible_wrap, reason = "PID fits i32 on all supported platforms")]
+        #[expect(
+            clippy::cast_possible_wrap,
+            reason = "PID fits i32 on all supported platforms"
+        )]
         let pid = std::process::id() as i32;
         #[cfg(unix)]
         assert!(is_pid_alive(pid));

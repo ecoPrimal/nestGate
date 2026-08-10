@@ -125,17 +125,18 @@ fn do_fetch_to_cas(
     });
 
     let cas_temp_dir = content_key_path(family_id, "00");
-    let cas_temp_dir = cas_temp_dir.parent().and_then(std::path::Path::parent).ok_or_else(|| {
-        NestGateError::io_error("content.fetch: cannot determine CAS base directory")
-    })?;
-    std::fs::create_dir_all(cas_temp_dir).map_err(|e| {
-        NestGateError::io_error(format!("content.fetch: mkdir failed: {e}"))
-    })?;
+    let cas_temp_dir = cas_temp_dir
+        .parent()
+        .and_then(std::path::Path::parent)
+        .ok_or_else(|| {
+            NestGateError::io_error("content.fetch: cannot determine CAS base directory")
+        })?;
+    std::fs::create_dir_all(cas_temp_dir)
+        .map_err(|e| NestGateError::io_error(format!("content.fetch: mkdir failed: {e}")))?;
 
     let part_path = cas_temp_dir.join(format!("_fetch_{}.part", std::process::id()));
-    let mut part_file = std::fs::File::create(&part_path).map_err(|e| {
-        NestGateError::io_error(format!("content.fetch: create .part failed: {e}"))
-    })?;
+    let mut part_file = std::fs::File::create(&part_path)
+        .map_err(|e| NestGateError::io_error(format!("content.fetch: create .part failed: {e}")))?;
 
     let mut reader = response.body_mut().as_reader();
     let mut hasher = blake3::Hasher::new();
@@ -152,18 +153,16 @@ fn do_fetch_to_cas(
             break;
         }
         hasher.update(&chunk[..n]);
-        part_file.write_all(&chunk[..n]).map_err(|e| {
-            NestGateError::io_error(format!("content.fetch: write error: {e}"))
-        })?;
+        part_file
+            .write_all(&chunk[..n])
+            .map_err(|e| NestGateError::io_error(format!("content.fetch: write error: {e}")))?;
         total_bytes += n as u64;
 
         if let Some(limit) = rate_bytes_per_sec {
             bytes_this_second += n as u64;
             if bytes_this_second >= limit {
                 let elapsed = second_start.elapsed();
-                if let Some(remaining) =
-                    std::time::Duration::from_secs(1).checked_sub(elapsed)
-                {
+                if let Some(remaining) = std::time::Duration::from_secs(1).checked_sub(elapsed) {
                     std::thread::sleep(remaining);
                 }
                 bytes_this_second = 0;
@@ -205,9 +204,8 @@ fn do_fetch_to_cas(
     }
 
     if let Some(parent) = cas_path.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| {
-            NestGateError::io_error(format!("content.fetch: mkdir failed: {e}"))
-        })?;
+        std::fs::create_dir_all(parent)
+            .map_err(|e| NestGateError::io_error(format!("content.fetch: mkdir failed: {e}")))?;
     }
 
     std::fs::rename(&part_path, &cas_path).map_err(|e| {
@@ -226,9 +224,7 @@ fn do_fetch_to_cas(
         &meta_path,
         serde_json::to_vec_pretty(&meta).unwrap_or_default(),
     )
-    .map_err(|e| {
-        NestGateError::io_error(format!("content.fetch: meta write failed: {e}"))
-    })?;
+    .map_err(|e| NestGateError::io_error(format!("content.fetch: meta write failed: {e}")))?;
 
     Ok(json!({
         "hash": hash_hex,

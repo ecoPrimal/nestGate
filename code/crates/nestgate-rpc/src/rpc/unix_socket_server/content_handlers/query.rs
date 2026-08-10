@@ -10,8 +10,8 @@ use nestgate_types::error::{NestGateError, Result};
 use serde_json::{Value, json};
 use tracing::debug;
 
-use super::super::storage_paths::resolve_family_id;
 use super::super::StorageState;
+use super::super::storage_paths::resolve_family_id;
 use super::{SIDECAR_PROVENANCE_KEYS, merge_sidecar_fields};
 
 /// `content.query` — filter content-addressed objects by sidecar metadata.
@@ -44,8 +44,7 @@ pub async fn content_query(params: Option<&Value>, state: &StorageState) -> Resu
         ));
     }
 
-    let limit = usize::try_from(params["limit"].as_u64().unwrap_or(100).min(10_000))
-        .unwrap_or(100);
+    let limit = usize::try_from(params["limit"].as_u64().unwrap_or(100).min(10_000)).unwrap_or(100);
     let offset = usize::try_from(params["offset"].as_u64().unwrap_or(0)).unwrap_or(0);
 
     let content_dirs = super::super::storage_paths::cas_content_dirs(family_id);
@@ -162,7 +161,13 @@ pub async fn content_query(params: Option<&Value>, state: &StorageState) -> Resu
 
 /// Extract filter key-value pairs from query parameters.
 fn extract_filters(params: &Value) -> Result<Vec<(&'static str, String)>> {
-    let filterable: &[&str] = &["content_type", "source", "pipeline", "stored_by", "parent_hash"];
+    let filterable: &[&str] = &[
+        "content_type",
+        "source",
+        "pipeline",
+        "stored_by",
+        "parent_hash",
+    ];
     let mut filters = Vec::new();
     for key in filterable {
         if let Some(val) = params[*key].as_str() {
@@ -196,7 +201,11 @@ mod tests {
         let params = json!({"content_type": "text/plain", "source": "ci", "unknown": "x"});
         let filters = extract_filters(&params).unwrap();
         assert_eq!(filters.len(), 2);
-        assert!(filters.iter().any(|(k, v)| *k == "content_type" && v == "text/plain"));
+        assert!(
+            filters
+                .iter()
+                .any(|(k, v)| *k == "content_type" && v == "text/plain")
+        );
         assert!(filters.iter().any(|(k, v)| *k == "source" && v == "ci"));
     }
 
@@ -210,10 +219,16 @@ mod tests {
     #[test]
     fn matches_filters_all_must_match() {
         let sidecar = json!({"content_type": "text/plain", "source": "ci", "pipeline": "build"});
-        let filters = vec![("content_type", "text/plain".into()), ("source", "ci".into())];
+        let filters = vec![
+            ("content_type", "text/plain".into()),
+            ("source", "ci".into()),
+        ];
         assert!(matches_filters(&sidecar, &filters));
 
-        let filters_mismatch = vec![("content_type", "text/plain".into()), ("source", "manual".into())];
+        let filters_mismatch = vec![
+            ("content_type", "text/plain".into()),
+            ("source", "manual".into()),
+        ];
         assert!(!matches_filters(&sidecar, &filters_mismatch));
     }
 

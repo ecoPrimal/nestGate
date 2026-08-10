@@ -61,11 +61,7 @@ impl TransportStream {
                 use std::os::fd::AsFd;
                 loop {
                     s.readable().await?;
-                    match rustix::net::recv(
-                        s.as_fd(),
-                        &mut *buf,
-                        rustix::net::RecvFlags::PEEK,
-                    ) {
+                    match rustix::net::recv(s.as_fd(), &mut *buf, rustix::net::RecvFlags::PEEK) {
                         Ok((n, _trunc)) => return Ok(n),
                         Err(rustix::io::Errno::AGAIN) => {}
                         Err(e) => return Err(std::io::Error::from(e)),
@@ -289,11 +285,12 @@ pub async fn connect_transport(
             capability,
         } => {
             debug!("MeshRelay connect: resolving coordinator for {peer_id}/{capability}");
-            let coordinator = discover_coordinator_socket_for_relay()
-                .ok_or_else(|| anyhow::anyhow!(
+            let coordinator = discover_coordinator_socket_for_relay().ok_or_else(|| {
+                anyhow::anyhow!(
                     "MeshRelay transport ({peer_id}/{capability}) requires the ecosystem \
                      coordinator, but no coordinator socket was discovered"
-                ))?;
+                )
+            })?;
 
             debug!(
                 "MeshRelay: connecting to coordinator at {} for relay to {peer_id}/{capability}",
@@ -302,12 +299,12 @@ pub async fn connect_transport(
 
             #[cfg(unix)]
             {
-                let stream = UnixStream::connect(&coordinator)
-                    .await
-                    .map_err(|e| anyhow::anyhow!(
+                let stream = UnixStream::connect(&coordinator).await.map_err(|e| {
+                    anyhow::anyhow!(
                         "MeshRelay coordinator connect to {}: {e}",
                         coordinator.display()
-                    ))?;
+                    )
+                })?;
                 Ok(TransportStream::Unix(stream))
             }
             #[cfg(not(unix))]
@@ -337,8 +334,8 @@ fn discover_coordinator_socket_for_relay() -> Option<std::path::PathBuf> {
             }
         }
     }
-    if let Ok(dir) = std::env::var("ECOSYSTEM_SOCKET_DIR")
-        .or_else(|_| std::env::var("BIOMEOS_SOCKET_DIR"))
+    if let Ok(dir) =
+        std::env::var("ECOSYSTEM_SOCKET_DIR").or_else(|_| std::env::var("BIOMEOS_SOCKET_DIR"))
     {
         let p = PathBuf::from(dir).join(format!("{eco}.sock"));
         if p.exists() {

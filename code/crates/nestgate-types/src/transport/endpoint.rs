@@ -459,9 +459,11 @@ mod tests {
 
     #[test]
     fn tarpc_endpoint_returns_none_for_non_sock_uds() {
-        assert!(TransportEndpoint::uds("/tmp/something")
-            .tarpc_endpoint()
-            .is_none());
+        assert!(
+            TransportEndpoint::uds("/tmp/something")
+                .tarpc_endpoint()
+                .is_none()
+        );
     }
 
     #[test]
@@ -485,7 +487,12 @@ mod tests {
         if cfg!(unix) {
             let ep = TransportEndpoint::platform_default("testprimal", None);
             assert!(matches!(ep, TransportEndpoint::Uds { .. }));
-            assert!(ep.uds_path().unwrap().to_string_lossy().contains("testprimal"));
+            assert!(
+                ep.uds_path()
+                    .unwrap()
+                    .to_string_lossy()
+                    .contains("testprimal")
+            );
         }
     }
 

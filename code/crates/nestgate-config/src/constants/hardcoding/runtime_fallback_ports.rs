@@ -28,7 +28,7 @@ pub mod defaults {
     pub const HEALTH: u16 = 8081;
     /// Fallback port for tarpc RPC listeners.
     pub const TARPC: u16 = 8091;
-    /// Fallback port for the jsonrpsee JSON-RPC HTTP server.
+    /// Fallback port for a dedicated JSON-RPC HTTP server (legacy; jsonrpsee removed in G72).
     pub const JSONRPC: u16 = 8092;
     /// Fallback port for gRPC listeners.
     pub const GRPC: u16 = 50051;
@@ -98,7 +98,7 @@ define_fallback_port!(/// Health probe (env: `NESTGATE_FALLBACK_PORT_HEALTH`, de
     health, HEALTH, HEALTH_LAZY, "NESTGATE_FALLBACK_PORT_HEALTH");
 define_fallback_port!(/// tarpc RPC (env: `NESTGATE_FALLBACK_PORT_TARPC`, default 8091).
     tarpc, TARPC, TARPC_LAZY, "NESTGATE_FALLBACK_PORT_TARPC");
-define_fallback_port!(/// jsonrpsee JSON-RPC HTTP (env: `NESTGATE_FALLBACK_PORT_JSONRPC`, default 8092).
+define_fallback_port!(/// Dedicated JSON-RPC HTTP (env: `NESTGATE_FALLBACK_PORT_JSONRPC`, default 8092; legacy — jsonrpsee removed in G72).
     jsonrpc, JSONRPC, JSONRPC_LAZY, "NESTGATE_FALLBACK_PORT_JSONRPC");
 define_fallback_port!(/// gRPC (env: `NESTGATE_FALLBACK_PORT_GRPC`, default 50051).
     grpc, GRPC, GRPC_LAZY, "NESTGATE_FALLBACK_PORT_GRPC");

@@ -112,10 +112,12 @@ impl KeyManagementConfig {
             .filter(|v| !v.is_empty())
             .map_or_else(
                 || {
-                    vec![nestgate_config_dir()
-                        .join("zfs")
-                        .join("keys")
-                        .join("backup")]
+                    vec![
+                        nestgate_config_dir()
+                            .join("zfs")
+                            .join("keys")
+                            .join("backup"),
+                    ]
                 },
                 |v| v.split(',').map(|s| PathBuf::from(s.trim())).collect(),
             );

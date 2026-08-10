@@ -197,12 +197,7 @@ async fn pull_blob_streamed(
 }
 
 /// Verify BLAKE3 integrity and write to the final CAS path.
-async fn verify_and_write(
-    cid: &str,
-    source: &str,
-    raw: &[u8],
-    local_path: &Path,
-) -> Result<()> {
+async fn verify_and_write(cid: &str, source: &str, raw: &[u8], local_path: &Path) -> Result<()> {
     let actual_hash = content_hash_hex(raw);
     if actual_hash != cid {
         return Err(NestGateError::internal(format!(
@@ -267,8 +262,15 @@ pub(super) async fn replicate_blob_to_remote(
     };
 
     if size > FEDERATION_STREAM_THRESHOLD {
-        replicate_blob_streamed(&mut client, blob_path, cid, family_id, size, metadata.as_ref())
-            .await?;
+        replicate_blob_streamed(
+            &mut client,
+            blob_path,
+            cid,
+            family_id,
+            size,
+            metadata.as_ref(),
+        )
+        .await?;
     } else {
         replicate_blob_inline(&mut client, blob_path, cid, family_id, metadata.as_ref()).await?;
     }
@@ -390,7 +392,10 @@ async fn replicate_blob_streamed(
         }
     }
 
-    debug!(cid, offset, "federation replicate: streamed transfer complete");
+    debug!(
+        cid,
+        offset, "federation replicate: streamed transfer complete"
+    );
 
     Ok(())
 }

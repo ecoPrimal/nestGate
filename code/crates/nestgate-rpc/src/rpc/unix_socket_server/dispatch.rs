@@ -184,13 +184,9 @@ pub(super) async fn handle_request(
         "content.query" => content_handlers::content_query(request.params.as_ref(), state).await,
         "content.stat" => content_handlers::content_stat(request.params.as_ref(), state).await,
         // Content ingest — bulk directory scan → BLAKE3 → CAS (O1)
-        "content.ingest" => {
-            content_handlers::content_ingest(request.params.as_ref(), state).await
-        }
+        "content.ingest" => content_handlers::content_ingest(request.params.as_ref(), state).await,
         // Content fetch — HTTP(S) GET → BLAKE3 → CAS in one step (data federation)
-        "content.fetch" => {
-            content_handlers::content_fetch(request.params.as_ref(), state).await
-        }
+        "content.fetch" => content_handlers::content_fetch(request.params.as_ref(), state).await,
         // Content manifests — versioned collections (NG-2)
         "content.publish" => {
             content_handlers::content_publish(request.params.as_ref(), state).await
@@ -481,9 +477,7 @@ pub(super) fn route_register(
         });
 
     for cap in &announced {
-        nestgate_config::config::capability_discovery::announce_capability(
-            cap, endpoint, ttl_dur,
-        )?;
+        nestgate_config::config::capability_discovery::announce_capability(cap, endpoint, ttl_dur)?;
     }
 
     Ok(json!({

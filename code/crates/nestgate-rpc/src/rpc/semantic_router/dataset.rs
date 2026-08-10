@@ -22,8 +22,7 @@ fn shared_state() -> &'static StorageState {
             clippy::expect_used,
             reason = "StorageState::new only fails on unrecoverable I/O — crash is correct"
         )]
-        StorageState::new()
-            .expect("StorageState initialization must not fail for dataset routing")
+        StorageState::new().expect("StorageState initialization must not fail for dataset routing")
     })
 }
 

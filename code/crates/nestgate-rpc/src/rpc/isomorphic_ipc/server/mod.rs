@@ -354,12 +354,7 @@ impl IsomorphicIpcServer {
         let _storage_capability_marker_guard =
             crate::rpc::socket_config::StorageCapabilityMarkerGuard::new(&socket_path, &family_id);
 
-        Self::serve_listener(
-            listener,
-            self.handler.clone(),
-            self.tarpc_handler.clone(),
-        )
-        .await
+        Self::serve_listener(listener, self.handler.clone(), self.tarpc_handler.clone()).await
     }
 
     /// Transport-agnostic accept loop.
@@ -423,12 +418,11 @@ impl IsomorphicIpcServer {
         use tokio::io::BufReader;
 
         // ── G65 Protocol Negotiation ──────────────────────────────────
-        if let Some(selected) =
-            crate::rpc::protocol_negotiation::try_g65_server_negotiation(
-                &mut stream,
-                tarpc_handler.is_some(),
-            )
-            .await
+        if let Some(selected) = crate::rpc::protocol_negotiation::try_g65_server_negotiation(
+            &mut stream,
+            tarpc_handler.is_some(),
+        )
+        .await
             && selected == IpcProtocol::Tarpc
         {
             if let Some(tarpc) = tarpc_handler {

@@ -190,8 +190,8 @@ pub async fn content_get(params: Option<&Value>, state: &StorageState) -> Result
     validate_blake3_hex(hash)?;
     let family_id = resolve_family_id(params, state)?;
 
-    let object_path = resolve_cas_object(family_id, hash)
-        .unwrap_or_else(|| content_key_path(family_id, hash));
+    let object_path =
+        resolve_cas_object(family_id, hash).unwrap_or_else(|| content_key_path(family_id, hash));
     if !object_path.exists() {
         return Ok(json!({"data": null, "hash": hash, "family_id": family_id}));
     }
@@ -318,9 +318,8 @@ pub async fn content_stat(params: Option<&Value>, state: &StorageState) -> Resul
     validate_blake3_hex(hash)?;
     let family_id = resolve_family_id(params, state)?;
 
-    let object_path = resolve_cas_object(family_id, hash).ok_or_else(|| {
-        NestGateError::not_found(format!("content object not found: {hash}"))
-    })?;
+    let object_path = resolve_cas_object(family_id, hash)
+        .ok_or_else(|| NestGateError::not_found(format!("content object not found: {hash}")))?;
 
     let file_meta = tokio::fs::metadata(&object_path)
         .await
@@ -448,7 +447,9 @@ mod tests {
         let size = put_result["size"].as_u64().unwrap();
 
         let stat_params = json!({"hash": hash, "family_id": "stat-roundtrip"});
-        let stat_result = super::content_stat(Some(&stat_params), &state).await.unwrap();
+        let stat_result = super::content_stat(Some(&stat_params), &state)
+            .await
+            .unwrap();
 
         assert_eq!(stat_result["hash"].as_str().unwrap(), hash);
         assert_eq!(stat_result["size"].as_u64().unwrap(), size);

@@ -476,7 +476,8 @@ mod tests {
 
     #[tokio::test]
     async fn ingest_missing_directory_errors() {
-        let params = json!({"directory": "/tmp/nonexistent-ingest-facade-test", "family_id": "test-ingest"});
+        let params =
+            json!({"directory": "/tmp/nonexistent-ingest-facade-test", "family_id": "test-ingest"});
         let err = ingest(&params).await;
         assert!(err.is_err());
     }

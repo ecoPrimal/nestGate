@@ -407,11 +407,8 @@ mod download_url_tests {
             b"#! /bin/sh\nexit 0\n",
         )
         .expect("shim");
-        nestgate_platform::platform::fs::set_mode(
-            &tmp.path().join("bin").join("nestgate"),
-            0o755,
-        )
-        .expect("chmod");
+        nestgate_platform::platform::fs::set_mode(&tmp.path().join("bin").join("nestgate"), 0o755)
+            .expect("chmod");
         let err = dm.verify_installation(tmp.path()).expect_err("no config");
         assert!(
             err.to_string().contains("Configuration not found")

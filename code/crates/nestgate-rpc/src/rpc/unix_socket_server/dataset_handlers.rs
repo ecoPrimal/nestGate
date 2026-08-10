@@ -195,7 +195,10 @@ fn do_convergence_scan(
     Ok(result)
 }
 
-#[expect(clippy::too_many_arguments, reason = "accumulator threading for recursive walk")]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "accumulator threading for recursive walk"
+)]
 fn walk_for_convergence(
     root: &Path,
     current: &Path,
@@ -254,12 +257,10 @@ fn walk_for_convergence(
         *total_files += 1;
         *total_bytes += size;
 
-        let relative = path
-            .strip_prefix(root)
-            .map_or_else(
-                |_| path.display().to_string(),
-                |r| r.to_string_lossy().replace('\\', "/"),
-            );
+        let relative = path.strip_prefix(root).map_or_else(
+            |_| path.display().to_string(),
+            |r| r.to_string_lossy().replace('\\', "/"),
+        );
 
         match hash_and_check_cas(&path, family_id) {
             Some(hash) => {

@@ -209,12 +209,11 @@ pub async fn try_g65_server_negotiation(
     use tracing::warn;
 
     let mut peek_buf = [0u8; 1];
-    let first_byte = match tokio::time::timeout(NEGOTIATION_TIMEOUT, stream.peek(&mut peek_buf))
-        .await
-    {
-        Ok(Ok(n)) if n > 0 => peek_buf[0],
-        _ => return None,
-    };
+    let first_byte =
+        match tokio::time::timeout(NEGOTIATION_TIMEOUT, stream.peek(&mut peek_buf)).await {
+            Ok(Ok(n)) if n > 0 => peek_buf[0],
+            _ => return None,
+        };
 
     if first_byte != b'P' {
         return None;
@@ -267,9 +266,7 @@ pub async fn try_g65_server_negotiation(
 ///
 /// Returns an error on I/O failure or if the line exceeds
 /// [`MAX_NEGOTIATION_LINE_LEN`].
-pub(crate) async fn read_negotiation_line<T: AsyncRead + Unpin>(
-    stream: &mut T,
-) -> Result<String> {
+pub(crate) async fn read_negotiation_line<T: AsyncRead + Unpin>(stream: &mut T) -> Result<String> {
     use tokio::io::AsyncReadExt;
 
     let mut buf = Vec::with_capacity(64);
@@ -397,9 +394,10 @@ mod tests {
             selected
         });
 
-        let client_task = tokio::spawn(async move {
-            negotiate_client(&mut client, vec![IpcProtocol::JsonRpc]).await
-        });
+        let client_task =
+            tokio::spawn(
+                async move { negotiate_client(&mut client, vec![IpcProtocol::JsonRpc]).await },
+            );
 
         let selected = client_task.await.expect("join").expect("negotiate");
         assert_eq!(selected, IpcProtocol::JsonRpc);
@@ -429,11 +427,7 @@ mod tests {
         });
 
         let client_task = tokio::spawn(async move {
-            negotiate_client(
-                &mut client,
-                vec![IpcProtocol::Tarpc, IpcProtocol::JsonRpc],
-            )
-            .await
+            negotiate_client(&mut client, vec![IpcProtocol::Tarpc, IpcProtocol::JsonRpc]).await
         });
 
         let selected = client_task.await.expect("join").expect("negotiate");

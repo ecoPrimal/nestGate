@@ -234,18 +234,19 @@ impl TcpFallbackServer {
     ) -> Result<()> {
         use crate::rpc::ipc_protocol::IpcProtocol;
 
-        if let Some(selected) =
-            crate::rpc::protocol_negotiation::try_g65_server_negotiation(
-                &mut stream,
-                tarpc_handler.is_some(),
-            )
-            .await
+        if let Some(selected) = crate::rpc::protocol_negotiation::try_g65_server_negotiation(
+            &mut stream,
+            tarpc_handler.is_some(),
+        )
+        .await
             && selected == IpcProtocol::Tarpc
         {
             if let Some(tarpc) = tarpc_handler {
                 return tarpc.handle_tarpc_connection(stream).await;
             }
-            warn!("G65 negotiated tarpc on TCP but no handler registered; falling back to JSON-RPC");
+            warn!(
+                "G65 negotiated tarpc on TCP but no handler registered; falling back to JSON-RPC"
+            );
         }
 
         let (reader, writer) = tokio::io::split(stream);

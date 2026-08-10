@@ -123,9 +123,9 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 #[cfg(unix)]
 use tokio::net::UnixListener;
-use tracing::{info, warn};
 #[cfg(unix)]
 use tracing::error;
+use tracing::{info, warn};
 
 /// JSON-RPC 2.0 Request
 #[derive(Debug, Deserialize)]

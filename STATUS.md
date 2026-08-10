@@ -1,6 +1,6 @@
 # NestGate - Current Status
 
-**Last Updated**: Aug 10, 2026 (Session 144: Wave 157e — HTTP transport parity, dataset_ops facade, composition graph gaps closed)
+**Last Updated**: Aug 10, 2026 (Session 145: G72 Dependency Pandemic — jsonrpsee removed, dep audit, fmt sweep)
 **Version**: 0.5.0
 
 ---
@@ -21,7 +21,7 @@ Dead code:          ZERO #[allow(dead_code)]; auth_production + zero_cost_api_ha
 Mocks in prod:      ZERO fabricated data; discovery endpoints are self-knowledge (local://); dev_environment gated behind dev-stubs feature
 TLS/crypto:         ureq + oxitls-rustcrypto-provider (pure Rust TLS); internal crypto BLAKE3; ring/reqwest/openssl ELIMINATED
 Encrypt-at-rest:    ChaCha20-Poly1305
-External deps:      Pure Rust — zero C build deps, no OpenSSL/ring, no cloud SDKs, 13 top-level runtime deps; stale rustix removed from nestgate-config and nestgate-storage
+External deps:      Pure Rust — zero C build deps, no OpenSSL/ring, no cloud SDKs; jsonrpsee removed (G72); stale rustix removed from nestgate-config and nestgate-storage
 Discovery:          Environment variables + capability IPC; XDG-compliant path resolution via etcetera; zero hardcoded FHS paths in consumers
 CLI health/status:  Live UDS probe via JsonRpcClient — resolves socket, sends health.check JSON-RPC
 Path resolution:    EnvSource injection works correctly (injected HOME > etcetera auto-detect > system fallback)
@@ -45,6 +45,7 @@ CONTEXT.md:         Present (per wateringHole PUBLIC_SURFACE_STANDARD)
 Per-session detail (Sessions 43–135) lives in [`CHANGELOG.md`](CHANGELOG.md) and `docs/handoffs/`.
 
 Recent sessions:
+- **Session 145** (Aug 10): G72 Dependency Pandemic response. Full dep audit: ureq (2 production sites, Tier 2 — needs songBird `http.get`), axum 0.7.9 (Tier 2 — coordinated 0.8 bump), tokio (no `"full"`, `test-util` P3 split possible). **jsonrpsee removed** — parallel JSON-RPC stack unused in production (1,864 LOC deleted, 8 files, `jsonrpc_server/` module excised). jsonrpsee + soketto + transitive deps purged from Cargo.lock. `cargo fmt --all` sweep (pre-existing formatting drift). 9,342 lib tests pass. Zero clippy. G72 tier status: Tier 1 complete (no `"full"`, no env_logger, no reqwest/sled/ring/openssl); Tier 2 documented (ureq, axum 0.8); Tier 3 noted (test-util split).
 - **Session 144** (Aug 10): Wave 157e composition graph — HTTP transport parity. Created `content_ops` wrappers for `stat`, `ingest`, `query`, `fetch` (4 functions, 6 tests). Created `dataset_ops` facade module for `dataset.convergence` (1 function, 3 tests). Wired all 5 methods into HTTP transport handler (`handlers.rs`). Full RPC surface parity audit: UDS↔HTTP now aligned for all content.*/coord.*/footprint.*/dataset.* domains (41 methods; `route.register` P2 — infrastructure-only). Full workspace clippy zero warnings. 9,394 lib tests pass. Gossip injection points identified (11 CAS event sites for future swarmVine wiring).
 - **Session 143** (Aug 9): P0-B vertebrate evolution response. `content.ingest` confirmed shipped (590 LOC, 7 tests, both dispatch paths — westGate P0-B diagnosis was stale-depot, not missing code). `content.stat(hash)` implemented — CAS object metadata without data transfer (size, tier, provenance sidecar, timestamps; errors on missing hash; 4 tests). Self-audit: verified RPC surface vs `capability_registry.toml` — found `dataset.convergence` missing from `UNIX_SOCKET_SUPPORTED_METHODS` (announce gap — fixed), `content.stat` added to registry. All surfaces now sync: UDS dispatch, semantic router, SUPPORTED_METHODS, registry, announce payload.
 - **Session 142** (Aug 7): Deep debt sweep — test suite green. Fixed 9 pre-existing test failures that were either masked by compilation errors or stale assertions: (1) `nestgate-api` websocket `Hasher` trait import + ambiguous float annotations (Rust 2024 edition compliance); (2) `connect_transport_mesh_relay_no_coordinator` runtime-within-runtime panic → `temp_env::async_with_vars`; (3) `payload_methods_are_filtered_correctly` → synced `content.ingest`/`content.query`/`content.fetch` into `UNIX_SOCKET_SUPPORTED_METHODS`, moved `dataset.convergence` assertion to `federation_methods`; (4) ZFS REST handler status code alignment (501→503); (5) `dispatch_identity_capabilities` → runtime-probed capability assertions; (6) `universal_storage_bridge` list_pools graceful degradation; (7) stale `zero_cost_*` module declarations removed. Installer L2 migration: all `PermissionsExt` calls in `nestgate-installer` → `nestgate_platform::platform::fs::set_mode()`. Stale `rustix` dep removed from `nestgate-config` and `nestgate-storage` (migrated to transitive via `nestgate-platform` in G68).

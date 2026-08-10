@@ -79,18 +79,17 @@ impl PerformanceDashboard {
             ((100.0 - current_metrics.cpu_usage - current_metrics.memory_usage) / 2.0) as f32;
         let health_score = health_score.clamp(0.0, 100.0);
 
-        let disk_usage_percent = nestgate_platform::linux_proc::statvfs_space(
-            std::path::Path::new("/"),
-        )
-        .map(|(total, avail)| {
-            if total > 0 {
-                let used = total.saturating_sub(avail);
-                (used as f64 / total as f64) * 100.0
-            } else {
-                0.0
-            }
-        })
-        .unwrap_or(0.0);
+        let disk_usage_percent =
+            nestgate_platform::linux_proc::statvfs_space(std::path::Path::new("/"))
+                .map(|(total, avail)| {
+                    if total > 0 {
+                        let used = total.saturating_sub(avail);
+                        (used as f64 / total as f64) * 100.0
+                    } else {
+                        0.0
+                    }
+                })
+                .unwrap_or(0.0);
 
         let network_bytes = current_metrics.network_throughput as u64;
 

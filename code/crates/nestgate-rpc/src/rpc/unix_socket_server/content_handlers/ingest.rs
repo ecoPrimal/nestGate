@@ -80,10 +80,7 @@ pub async fn content_ingest(params: Option<&Value>, state: &StorageState) -> Res
     }
 
     let family_id = resolve_family_id(params, state)?.to_owned();
-    let source = params["source"]
-        .as_str()
-        .unwrap_or(&directory)
-        .to_owned();
+    let source = params["source"].as_str().unwrap_or(&directory).to_owned();
     let pipeline = params["pipeline"]
         .as_str()
         .unwrap_or("content.ingest")
@@ -205,7 +202,10 @@ fn do_ingest(
 }
 
 /// Recursively walk a directory and ingest each regular file.
-#[expect(clippy::too_many_arguments, reason = "accumulator threading for recursive walk")]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "accumulator threading for recursive walk"
+)]
 fn walk_directory(
     root: &Path,
     current: &Path,
@@ -384,10 +384,7 @@ fn ingest_file(
     let cas_path = content_key_path(family_id, &hash_hex);
 
     if cas_path.exists() {
-        debug!(
-            "content.ingest: dedup hit {} → {hash_hex}",
-            path.display()
-        );
+        debug!("content.ingest: dedup hit {} → {hash_hex}", path.display());
         return Ok(FileResult {
             hash: hash_hex,
             size,
@@ -396,9 +393,8 @@ fn ingest_file(
     }
 
     if let Some(parent) = cas_path.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| {
-            NestGateError::io_error(format!("content.ingest: mkdir failed: {e}"))
-        })?;
+        std::fs::create_dir_all(parent)
+            .map_err(|e| NestGateError::io_error(format!("content.ingest: mkdir failed: {e}")))?;
     }
 
     std::fs::copy(path, &cas_path).map_err(|e| {
@@ -422,9 +418,7 @@ fn ingest_file(
         &meta_path,
         serde_json::to_vec_pretty(&sidecar).unwrap_or_default(),
     ) {
-        warn!(
-            "content.ingest: sidecar write failed for {hash_hex}: {e}"
-        );
+        warn!("content.ingest: sidecar write failed for {hash_hex}: {e}");
     }
 
     Ok(FileResult {
@@ -483,7 +477,10 @@ mod tests {
 
     #[test]
     fn guess_content_type_json() {
-        assert_eq!(guess_content_type(Path::new("data.json")), "application/json");
+        assert_eq!(
+            guess_content_type(Path::new("data.json")),
+            "application/json"
+        );
     }
 
     #[test]
@@ -504,9 +501,18 @@ mod tests {
 
     #[test]
     fn guess_content_type_science_formats() {
-        assert_eq!(guess_content_type(Path::new("protein.pdb")), "chemical/x-pdb");
-        assert_eq!(guess_content_type(Path::new("reads.fastq")), "application/x-fastq");
-        assert_eq!(guess_content_type(Path::new("data.parquet")), "application/x-parquet");
+        assert_eq!(
+            guess_content_type(Path::new("protein.pdb")),
+            "chemical/x-pdb"
+        );
+        assert_eq!(
+            guess_content_type(Path::new("reads.fastq")),
+            "application/x-fastq"
+        );
+        assert_eq!(
+            guess_content_type(Path::new("data.parquet")),
+            "application/x-parquet"
+        );
     }
 
     #[tokio::test]
@@ -516,7 +522,10 @@ mod tests {
         let result = content_ingest(Some(&params), &state).await;
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
-        assert!(err.contains("absolute"), "error should mention absolute: {err}");
+        assert!(
+            err.contains("absolute"),
+            "error should mention absolute: {err}"
+        );
     }
 
     #[tokio::test]
@@ -526,7 +535,10 @@ mod tests {
         let result = content_ingest(Some(&params), &state).await;
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
-        assert!(err.contains("does not exist"), "error should mention not existing: {err}");
+        assert!(
+            err.contains("does not exist"),
+            "error should mention not existing: {err}"
+        );
     }
 
     #[tokio::test]

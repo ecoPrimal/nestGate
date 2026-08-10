@@ -544,21 +544,25 @@ pub async fn serve_tarpc_uds<S: StorageBackend + 'static>(
     socket_path: &Path,
     service: NestGateRpcService<S>,
 ) -> Result<()> {
-    info!("Starting NestGate tarpc UDS server on {}", socket_path.display());
+    info!(
+        "Starting NestGate tarpc UDS server on {}",
+        socket_path.display()
+    );
 
-    let listener = tarpc::serde_transport::unix::listen(
-        socket_path,
-        tokio_serde::formats::Bincode::default,
-    )
-    .await
-    .map_err(|e| {
-        NestGateError::network_error(format!(
-            "Failed to bind tarpc UDS to {}: {e}",
-            socket_path.display()
-        ))
-    })?;
+    let listener =
+        tarpc::serde_transport::unix::listen(socket_path, tokio_serde::formats::Bincode::default)
+            .await
+            .map_err(|e| {
+                NestGateError::network_error(format!(
+                    "Failed to bind tarpc UDS to {}: {e}",
+                    socket_path.display()
+                ))
+            })?;
 
-    info!("NestGate tarpc UDS server listening on {}", socket_path.display());
+    info!(
+        "NestGate tarpc UDS server listening on {}",
+        socket_path.display()
+    );
 
     let backend = Arc::clone(&service.backend);
     let start_time = service.start_time;
@@ -606,10 +610,8 @@ pub async fn handle_tarpc_negotiated<S: StorageBackend + 'static>(
 ) -> Result<()> {
     info!("Serving G65-negotiated tarpc connection");
 
-    let transport = tarpc::serde_transport::Transport::from((
-        stream,
-        tokio_serde::formats::Bincode::default(),
-    ));
+    let transport =
+        tarpc::serde_transport::Transport::from((stream, tokio_serde::formats::Bincode::default()));
 
     let server = tarpc::server::BaseChannel::with_defaults(transport);
     server

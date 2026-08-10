@@ -142,16 +142,12 @@ impl SystemIntrospection {
                 let memory_factor = saturating_f64_to_usize(capabilities.memory_gb * 50.0);
                 Ok(base_connections.max(memory_factor).min(10000))
             }
-            "threads" => {
-                Ok((capabilities.logical_cores * 2).clamp(4, 64))
-            }
+            "threads" => Ok((capabilities.logical_cores * 2).clamp(4, 64)),
             "memory_buffer" => {
                 let buffer_mb = saturating_f64_to_usize(capabilities.memory_gb * 0.1);
                 Ok((buffer_mb * 1024 * 1024).clamp(4096, 64 * 1024 * 1024))
             }
-            "file_handles" => {
-                Ok(self.get_system_file_limit().unwrap_or(1024))
-            }
+            "file_handles" => Ok(self.get_system_file_limit().unwrap_or(1024)),
             "queue_size" => {
                 let base_queue = saturating_f64_to_usize(capabilities.memory_gb * 1000.0);
                 Ok(base_queue.clamp(1000, 100_000))

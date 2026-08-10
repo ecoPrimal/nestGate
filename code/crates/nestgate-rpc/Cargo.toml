@@ -28,7 +28,6 @@ bincode = { workspace = true }
 etcetera = { workspace = true }
 futures-util = { workspace = true }
 rustix = { workspace = true }
-jsonrpsee = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tarpc = { workspace = true, features = ["tokio1", "serde-transport", "serde1", "tcp", "unix"] }

@@ -74,7 +74,6 @@ pub mod dataset_ops;
 pub mod footprint_ops;
 pub mod ipc_protocol;
 pub mod jsonrpc_client;
-pub mod jsonrpc_server;
 pub mod metadata_backend;
 pub(crate) mod method_gate;
 #[cfg(any(feature = "dev-stubs", test))]
@@ -111,7 +110,6 @@ pub use audit_storage::{
     AuditStorage, ExecutionAudit, ExecutionStatus, GraphModification, ModificationType,
     NodeOutcome, NodeStatus,
 };
-pub use jsonrpc_server::{JsonRpcConfig, JsonRpcServer};
 pub use metadata_backend::{
     DefaultMetadataBackend, FileMetadataBackend, InMemoryMetadataBackend, MetadataBackend,
     ServiceRecord, default_metadata_base_dir,
@@ -122,9 +120,9 @@ pub use semantic_router::SemanticRouter;
 pub use socket_config::{SocketConfig, SocketConfigSource};
 pub use storage_backend::{InMemoryStorageBackend, StorageBackend};
 pub use tarpc_client::NestGateRpcClient;
-pub use tarpc_server::{NestGateRpcService, handle_tarpc_negotiated, serve_tarpc};
 #[cfg(unix)]
 pub use tarpc_server::serve_tarpc_uds;
+pub use tarpc_server::{NestGateRpcService, handle_tarpc_negotiated, serve_tarpc};
 pub use template_storage::{GraphTemplate, TemplateMetadata, TemplateStorage};
 // Re-export legacy Unix JSON-RPC surface until callers use orchestration IPC.
 pub use unix_socket_server::{
@@ -141,9 +139,9 @@ pub use protocol_negotiation::{
 // NEW: Isomorphic IPC exports (v0.3.0)
 pub use isomorphic_ipc::{
     IpcEndpoint, IpcStream, IsomorphicIpcServer, RpcHandler, SocketCleanupGuard,
-    TarpcStreamHandler, TcpFallbackServer, TransportStream, UnixSocketRpcHandler,
-    connect_endpoint, connect_transport, discover_ipc_endpoint, is_platform_constraint,
-    transport_to_ipc_endpoint, write_pid_file,
+    TarpcStreamHandler, TcpFallbackServer, TransportStream, UnixSocketRpcHandler, connect_endpoint,
+    connect_transport, discover_ipc_endpoint, is_platform_constraint, transport_to_ipc_endpoint,
+    write_pid_file,
 };
 
 /// Returns `true` if `method` may be served on a BTSP-required socket
@@ -187,7 +185,6 @@ mod tests {
     #[test]
     fn test_module_exports() {
         let _ = DatasetParams::default();
-        let _ = JsonRpcConfig::default();
         let _ = TemplateStorage::new();
         let _ = AuditStorage::new();
         let cfg = SocketConfig::resolve(

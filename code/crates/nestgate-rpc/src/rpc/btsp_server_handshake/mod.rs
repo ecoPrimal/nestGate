@@ -237,8 +237,8 @@ pub fn is_btsp_required() -> bool {
         return false;
     }
 
-    let insecure = std::env::var("ECOSYSTEM_INSECURE")
-        .or_else(|_| std::env::var("BIOMEOS_INSECURE"));
+    let insecure =
+        std::env::var("ECOSYSTEM_INSECURE").or_else(|_| std::env::var("BIOMEOS_INSECURE"));
     !matches!(insecure.as_deref(), Ok("1"))
 }
 

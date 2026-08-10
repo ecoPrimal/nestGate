@@ -315,13 +315,11 @@ mod tests {
             "/tmp/nestgate.tarpc.sock"
         );
         assert_eq!(
-            payload["endpoints"]["g65_negotiation"],
-            true,
+            payload["endpoints"]["g65_negotiation"], true,
             "G65 protocol negotiation flag must be advertised"
         );
         assert_eq!(
-            payload["endpoints"]["g66_transport_abstraction"],
-            true,
+            payload["endpoints"]["g66_transport_abstraction"], true,
             "G66 transport abstraction flag must be advertised"
         );
     }

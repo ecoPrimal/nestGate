@@ -120,7 +120,9 @@ async fn handle_logs_websocket(mut socket: WebSocket, _state: ApiState, _query: 
         "message": "Log streaming not yet wired to nestgate-observe. Use RUST_LOG + journal."
     });
     let _ = socket
-        .send(Message::Text(serde_json::to_string(&msg).unwrap_or_default()))
+        .send(Message::Text(
+            serde_json::to_string(&msg).unwrap_or_default(),
+        ))
         .await;
     let _ = socket.close().await;
     info!("Logs WebSocket connection closed (not_implemented)");
@@ -130,18 +132,16 @@ async fn handle_logs_websocket(mut socket: WebSocket, _state: ApiState, _query: 
 ///
 /// Event streaming is not yet wired to real observability (`nestgate-observe`).
 /// Sends an honest status message and closes the connection.
-async fn handle_events_websocket(
-    mut socket: WebSocket,
-    _state: ApiState,
-    _query: WebSocketQuery,
-) {
+async fn handle_events_websocket(mut socket: WebSocket, _state: ApiState, _query: WebSocketQuery) {
     info!("Events WebSocket connection established (not_implemented — no real event bus)");
     let msg = serde_json::json!({
         "status": "not_implemented",
         "message": "Event streaming not yet wired to nestgate-observe."
     });
     let _ = socket
-        .send(Message::Text(serde_json::to_string(&msg).unwrap_or_default()))
+        .send(Message::Text(
+            serde_json::to_string(&msg).unwrap_or_default(),
+        ))
         .await;
     let _ = socket.close().await;
     info!("Events WebSocket connection closed (not_implemented)");
@@ -299,7 +299,10 @@ pub fn generate_sample_log_entry(level_filter: &str) -> LogEntry {
         _ => vec!["INFO", "WARN"],
     };
 
-    #[expect(clippy::cast_possible_truncation, reason = "index bounded by slice len")]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "index bounded by slice len"
+    )]
     let level = levels[(seed % levels.len() as u64) as usize];
 
     let messages = [
@@ -309,9 +312,15 @@ pub fn generate_sample_log_entry(level_filter: &str) -> LogEntry {
     ];
     let modules = ["nestgate::zfs", "nestgate::storage", "nestgate::api"];
 
-    #[expect(clippy::cast_possible_truncation, reason = "index bounded by slice len")]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "index bounded by slice len"
+    )]
     let msg_idx = (seed % messages.len() as u64) as usize;
-    #[expect(clippy::cast_possible_truncation, reason = "index bounded by slice len")]
+    #[expect(
+        clippy::cast_possible_truncation,
+        reason = "index bounded by slice len"
+    )]
     let mod_idx = ((seed >> 8) % modules.len() as u64) as usize;
 
     LogEntry {

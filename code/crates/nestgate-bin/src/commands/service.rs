@@ -270,9 +270,8 @@ impl nestgate_core::rpc::TarpcStreamHandler for G65TarpcHandler {
         stream: nestgate_core::rpc::TransportStream,
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = anyhow::Result<()>> + Send>> {
         Box::pin(async move {
-            let service = nestgate_core::rpc::NestGateRpcService::new().map_err(|e| {
-                anyhow::anyhow!("G65 tarpc service creation failed: {e}")
-            })?;
+            let service = nestgate_core::rpc::NestGateRpcService::new()
+                .map_err(|e| anyhow::anyhow!("G65 tarpc service creation failed: {e}"))?;
             nestgate_core::rpc::handle_tarpc_negotiated(stream, service)
                 .await
                 .map_err(|e| anyhow::anyhow!("G65 tarpc connection error: {e}"))
@@ -347,9 +346,7 @@ async fn start_socket_server(tcp_addr: Option<SocketAddr>) -> BinResult<()> {
 
     #[cfg(unix)]
     let _tarpc_socket_guard = {
-        let tarpc_socket_path = socket_config
-            .socket_path
-            .with_extension("tarpc.sock");
+        let tarpc_socket_path = socket_config.socket_path.with_extension("tarpc.sock");
         info!("tarpc UDS socket: {}", tarpc_socket_path.display());
 
         if tarpc_socket_path.exists() {
@@ -471,9 +468,7 @@ fn resolve_composition_tcp(
         return Ok(None);
     };
     let env_host = std::env::var("NESTGATE_API_HOST").ok();
-    let host = bind
-        .or(env_host.as_deref())
-        .unwrap_or("127.0.0.1");
+    let host = bind.or(env_host.as_deref()).unwrap_or("127.0.0.1");
     let addr: SocketAddr = format!("{host}:{p}").parse().map_err(|e| {
         NestGateBinError::service_init_error(
             format!("Invalid TCP bind address: {e}"),

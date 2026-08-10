@@ -190,9 +190,7 @@ impl<S: StorageBackend + 'static> RpcMethodHandler for NestGateRpcHandler<S> {
             "footprint.history" => nestgate_core::rpc::footprint_ops::history(&params).await,
 
             // Dataset domain — CAS provenance analysis
-            "dataset.convergence" => {
-                nestgate_core::rpc::dataset_ops::convergence(&params).await
-            }
+            "dataset.convergence" => nestgate_core::rpc::dataset_ops::convergence(&params).await,
 
             // Lifecycle
             "lifecycle.status" => self.handle_lifecycle_status(),

@@ -38,11 +38,7 @@ pub fn select_for_deletion(
             weekly_weeks: _,
             monthly_months: _,
             yearly_years,
-        } => custom_retention(
-            snapshots,
-            *hourly_hours,
-            *yearly_years,
-        ),
+        } => custom_retention(snapshots, *hourly_hours, *yearly_years),
     }
 }
 
@@ -56,8 +52,7 @@ fn custom_retention(
     _hourly_hours: u32,
     yearly_years: u32,
 ) -> Vec<SnapshotInfo> {
-    let year_cutoff =
-        SystemTime::now() - Duration::from_secs(u64::from(yearly_years) * 31_556_952);
+    let year_cutoff = SystemTime::now() - Duration::from_secs(u64::from(yearly_years) * 31_556_952);
     snapshots
         .into_iter()
         .filter(|s| s.created_at < year_cutoff)
