@@ -1,6 +1,6 @@
 # NestGate - Current Status
 
-**Last Updated**: Aug 10, 2026 (Session 146: Deep Debt Sweep — fake success, idiomatic Rust, hardcoding evolution)
+**Last Updated**: Aug 11, 2026 (Session 147: Wave 157i deep debt + gossip hook + crate surgery)
 **Version**: 0.5.0
 
 ---
@@ -15,7 +15,7 @@ Tests:              FULL GREEN — 0 failed across workspace (including nestgate
 Files > 800 lines:  ZERO in production src/
 Unwrap/Expect:      deny(unwrap_used), deny(expect_used) in workspace lints — zero in production
 Inline markers:     none in committed production .rs (deny(todo), deny(unimplemented))
-Unsafe code:        #![forbid(unsafe_code)] on ALL 18 crate roots (zero exceptions; quarantined crates deleted)
+Unsafe code:        #![forbid(unsafe_code)] on ALL 17 crate roots (zero exceptions; nestgate-nas removed S147)
 println! in lib:    ZERO in core libs; installer retains stdout for interactive wizard UX
 Dead code:          ZERO #[allow(dead_code)]; auth_production + zero_cost_api_handlers purged (3,573 LOC); stale zero_cost module declarations removed
 Mocks in prod:      ZERO fabricated data; cloud backends (Azure/GCS/S3) return NotImplemented (no silent fake success); dev_environment gated behind dev-stubs feature
@@ -32,7 +32,8 @@ Platform substrate: G68 — L1 links, L2 permissions, L3 process/statvfs consoli
 Cross-arch:         PASS — cargo check --target x86_64-pc-windows-gnu (excluding fuzz/installer pre-existing)
 Wire Standard:      Level 3 (Composable) — {primal, version, capabilities} envelope
 BTSP:               Phase 1-3 PASS — family-scoped sockets, encrypted channel, CAS federation wired
-Workspace:          18 crates, Rust 2024 edition, 100% hoisted deps
+Gossip events:      11 CAS write sites wired → gossip_events module (ObjectStored, ObjectReplicated, ManifestPublished, FootprintStored, CoordIngested, ExternalCached)
+Workspace:          17 crates, Rust 2024 edition, 100% hoisted deps
 Repository:         https://git.primals.eco/ecoPrimals/nestGate
 Registry:           capability_registry.toml — machine-readable self-knowledge (21 capability domains)
 CONTEXT.md:         Present (per wateringHole PUBLIC_SURFACE_STANDARD)
@@ -45,6 +46,7 @@ CONTEXT.md:         Present (per wateringHole PUBLIC_SURFACE_STANDARD)
 Per-session detail (Sessions 43–135) lives in [`CHANGELOG.md`](CHANGELOG.md) and `docs/handoffs/`.
 
 Recent sessions:
+- **Session 147** (Aug 11): Wave 157i deep debt + gossip architecture + crate surgery. **Gossip event emission** wired at 11 CAS write sites — centralized `gossip_events` module with `CasEvent` types (`ObjectStored`, `ObjectReplicated`, `ManifestPublished`, `FootprintStored`, `CoordIngested`, `ExternalCached`); bounded mpsc channel, non-blocking best-effort emission; `subscribe()` for bridge/test consumption. Consumed capability `gossip` registered. **nestgate-nas crate removed** (~430 LOC orphan stub, zero production wiring). **steam feature removed** from nestgate-core (590 LOC dead `steam_data_service.rs` + empty feature). **native_handlers.rs split** (688→3 files: `mod.rs` pool+health, `dataset_handlers.rs`, `snapshot_handlers.rs`). **String::from sweep** complete: 7 remaining production sites modernized (simd, native ZFS, hw-tuning). Load test assertions updated for S146 501 behavior (17 tests fixed). 1,666 lib tests pass. Zero clippy. 17 crates.
 - **Session 146** (Aug 10): Deep debt sweep — production safety + idiomatic Rust. **Silent fake success** eliminated: Azure, GCS, S3 backends `create_dataset`/`create_snapshot`/`create_pool`/`get_pool_properties` now return `NestGateError::not_implemented` instead of `Ok(...)` with fabricated objects. `start_load_test` HTTP handler → 501 (was returning success JSON without running tests). Orchestrator `register_with_orchestrator` → explicit error (was setting local `registered = true` without outbound RPC). **String::from sweep**: ~90 `String::from("...")` → idiomatic `.into()` / direct `&str` / `.to_owned()` across 28 nestgate-zfs files (production + test). Clippy `#[must_use]` fix on `AccessControlConfig::production()`. **Hardcoding evolution**: `OBJECT_STORAGE_PATH_STYLE` env var wired into S3 path-style detection (was heuristic-only). Test assertions updated for new error-returning behavior (3 S3 tests + 1 orchestrator test). `cargo fmt --all`. 1,630 tests pass. Zero clippy.
 - **Session 145** (Aug 10): G72 Dependency Pandemic response. Full dep audit: ureq (2 production sites, Tier 2 — needs songBird `http.get`), axum 0.7.9 (Tier 2 — coordinated 0.8 bump), tokio (no `"full"`, `test-util` P3 split possible). **jsonrpsee removed** — parallel JSON-RPC stack unused in production (1,864 LOC deleted, 8 files, `jsonrpc_server/` module excised). jsonrpsee + soketto + transitive deps purged from Cargo.lock. `cargo fmt --all` sweep (pre-existing formatting drift). 9,342 lib tests pass. Zero clippy. G72 tier status: Tier 1 complete (no `"full"`, no env_logger, no reqwest/sled/ring/openssl); Tier 2 documented (ureq, axum 0.8); Tier 3 noted (test-util split).
 - **Session 144** (Aug 10): Wave 157e composition graph — HTTP transport parity. Created `content_ops` wrappers for `stat`, `ingest`, `query`, `fetch` (4 functions, 6 tests). Created `dataset_ops` facade module for `dataset.convergence` (1 function, 3 tests). Wired all 5 methods into HTTP transport handler (`handlers.rs`). Full RPC surface parity audit: UDS↔HTTP now aligned for all content.*/coord.*/footprint.*/dataset.* domains (41 methods; `route.register` P2 — infrastructure-only). Full workspace clippy zero warnings. 9,394 lib tests pass. Gossip injection points identified (11 CAS event sites for future swarmVine wiring).

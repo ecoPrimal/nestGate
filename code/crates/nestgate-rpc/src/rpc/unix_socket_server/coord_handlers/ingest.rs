@@ -35,6 +35,7 @@ use tracing::{debug, info};
 use super::super::StorageState;
 use super::super::storage_paths::resolve_family_id;
 use super::types::{ArtifactKind, CoordArtifact, CoordManifest};
+use crate::rpc::gossip_events;
 
 fn coord_base_path(family_id: &str) -> std::path::PathBuf {
     let base = get_storage_base_path();
@@ -82,6 +83,16 @@ fn store_artifact(family_id: &str, hash: &str, content: &[u8]) -> Result<()> {
     }
     std::fs::write(&path, content)
         .map_err(|e| NestGateError::io_error(format!("failed to write artifact {hash}: {e}")))?;
+
+    gossip_events::emit(gossip_events::CasEvent {
+        kind: gossip_events::CasEventKind::CoordIngested,
+        hash: hash.to_owned(),
+        size: content.len() as u64,
+        pipeline: "coord.ingest",
+        deduplicated: false,
+        family_id: String::new(),
+    });
+
     Ok(())
 }
 

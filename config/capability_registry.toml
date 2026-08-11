@@ -383,3 +383,7 @@ required = false
 [consumed_capabilities.crypto]
 reason = "Content-addressed hashing, signature verification (delegated via IPC)"
 required = false
+
+[consumed_capabilities.gossip]
+reason = "CAS event gossip injection — emits ObjectStored/ObjectReplicated/ManifestPublished events to mesh"
+required = false

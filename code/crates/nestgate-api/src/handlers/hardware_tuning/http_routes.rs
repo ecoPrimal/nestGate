@@ -104,7 +104,7 @@ fn detect_hardware_config() -> HardwareStartupConfig {
     let capabilities =
         tuning_proc::system_capabilities_from_proc().unwrap_or_else(|_| SystemCapabilities {
             cpu_cores: usize::try_from(compute.available_cpu.max(1)).unwrap_or(1),
-            cpu_model: String::from("unknown"),
+            cpu_model: "unknown".into(),
             memory_gb: u64::from(compute.available_memory_gb.max(1)),
             gpu_available: compute.available_gpu > 0,
             gpu_info: None,

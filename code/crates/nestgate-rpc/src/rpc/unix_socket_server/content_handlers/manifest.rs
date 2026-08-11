@@ -10,6 +10,7 @@ use serde_json::{Value, json};
 use tracing::debug;
 
 use super::super::StorageState;
+use crate::rpc::gossip_events;
 use super::super::storage_paths::{
     content_key_path, ensure_parent_dirs, manifest_path, resolve_family_id,
 };
@@ -76,6 +77,15 @@ pub async fn content_publish(params: Option<&Value>, state: &StorageState) -> Re
         "content.publish: collection={collection}, entries={}, family_id='{family_id}'",
         manifest.len()
     );
+
+    gossip_events::emit(gossip_events::CasEvent {
+        kind: gossip_events::CasEventKind::ManifestPublished,
+        hash: collection.to_owned(),
+        size: manifest.len() as u64,
+        pipeline: "content.publish",
+        deduplicated: false,
+        family_id: family_id.to_owned(),
+    });
 
     Ok(json!({
         "collection": collection,

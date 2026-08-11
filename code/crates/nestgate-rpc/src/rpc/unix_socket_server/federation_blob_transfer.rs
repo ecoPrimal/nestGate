@@ -17,6 +17,7 @@ use tracing::debug;
 
 use super::federation_ops;
 use super::storage_paths::{content_hash_hex, ensure_parent_dirs};
+use crate::rpc::gossip_events;
 
 /// Blobs above this threshold use chunked streaming for federation transfer.
 /// Below this, the inline base64 JSON-RPC path is used (simpler, single-call).
@@ -213,6 +214,8 @@ async fn verify_and_write(cid: &str, source: &str, raw: &[u8], local_path: &Path
     tokio::fs::rename(&tmp_path, local_path)
         .await
         .map_err(|e| NestGateError::internal(format!("finalize blob {cid}: {e}")))?;
+
+    gossip_events::emit_object_replicated(cid, raw.len() as u64, "federation.pull", "");
 
     Ok(())
 }

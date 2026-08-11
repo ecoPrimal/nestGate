@@ -48,6 +48,7 @@ use tracing::{debug, warn};
 
 use super::super::StorageState;
 use super::super::storage_paths::{content_key_path, resolve_family_id};
+use crate::rpc::gossip_events;
 
 /// Maximum file size for inline ingestion (256 MiB).
 ///
@@ -420,6 +421,8 @@ fn ingest_file(
     ) {
         warn!("content.ingest: sidecar write failed for {hash_hex}: {e}");
     }
+
+    gossip_events::emit_object_stored(&hash_hex, size, "content.ingest", false, "");
 
     Ok(FileResult {
         hash: hash_hex,

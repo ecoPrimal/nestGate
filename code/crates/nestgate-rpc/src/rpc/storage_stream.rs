@@ -21,6 +21,8 @@ use tokio::sync::Mutex;
 use tracing::debug;
 use uuid::Uuid;
 
+use super::gossip_events;
+
 /// Maximum decoded bytes per `storage.store_stream_chunk` / `storage.retrieve_stream_chunk` response.
 pub const MAX_STREAM_CHUNK: u64 = 4 * 1024 * 1024;
 
@@ -335,6 +337,14 @@ pub async fn storage_store_stream_chunk(params: Value) -> Result<Value> {
             .io_ctx("finalize rename")?;
 
         drop(guard);
+
+        gossip_events::emit_object_stored(
+            &upload.key,
+            upload.total_size,
+            "storage.store_stream",
+            false,
+            &upload.family_id,
+        );
 
         return Ok(json!({
             "status": "stored",

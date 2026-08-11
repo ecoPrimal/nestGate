@@ -10,6 +10,7 @@ use serde_json::{Value, json};
 use tracing::debug;
 
 use super::super::StorageState;
+use crate::rpc::gossip_events;
 use super::super::storage_paths::{
     content_hash_hex, content_key_path, ensure_parent_dirs, resolve_cas_object, resolve_family_id,
     warm_tier_capacity, warm_tier_min_free,
@@ -153,6 +154,14 @@ pub async fn content_put(params: Option<&Value>, state: &StorageState) -> Result
         family_id,
         raw.len(),
         object_path.display()
+    );
+
+    gossip_events::emit_object_stored(
+        &blake3_hex,
+        raw.len() as u64,
+        "content.put",
+        false,
+        family_id,
     );
 
     Ok(json!({

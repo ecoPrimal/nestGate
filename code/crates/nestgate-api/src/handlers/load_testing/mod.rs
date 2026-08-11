@@ -111,15 +111,12 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_start_load_test() {
+    async fn test_start_load_test_returns_not_implemented() {
         #[expect(deprecated, reason = "testing backward-compatible deprecated API")]
         let config = LoadTestConfig::default();
         let result = start_load_test(Json(config)).await;
-        assert!(result.is_ok());
-
-        let execution = result.expect("Test: start_load_test should return Ok").0;
-        assert!(execution.started_at.is_some());
-        assert!(execution.test_id.starts_with("test_"));
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), StatusCode::NOT_IMPLEMENTED);
     }
 
     #[tokio::test]

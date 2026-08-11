@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use tracing::debug;
 
 use super::StorageState;
+use crate::rpc::gossip_events;
 use super::storage_paths::{
     blob_key_path, build_http_agent, content_hash_hex, dataset_key_path, ensure_parent_dirs,
     extract_namespace, http_user_agent, resolve_family_id, validate_fetch_url,
@@ -194,6 +195,15 @@ async fn do_external_fetch(
             "Failed to write cache metadata for {cache_key}: {e}"
         ))
     })?;
+
+    gossip_events::emit(gossip_events::CasEvent {
+        kind: gossip_events::CasEventKind::ExternalCached,
+        hash: blake3_hex.clone(),
+        size: payload_bytes.len() as u64,
+        pipeline: "storage.fetch_external",
+        deduplicated: false,
+        family_id: family_id.to_owned(),
+    });
 
     let value: Value = serde_json::from_slice(&payload_bytes)
         .unwrap_or_else(|_| Value::String(String::from_utf8_lossy(&payload_bytes).into_owned()));

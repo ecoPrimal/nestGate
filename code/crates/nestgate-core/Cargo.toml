@@ -103,5 +103,3 @@ harness = false
 default = []
 # Development stubs - include mock/stub implementations for testing
 dev-stubs = ["nestgate-config/dev-stubs", "nestgate-rpc/dev-stubs"]
-# Domain-specific Steam gaming data integration (not part of core storage primal)
-steam = []

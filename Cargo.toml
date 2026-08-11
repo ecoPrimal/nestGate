@@ -40,7 +40,6 @@ serial_test = { workspace = true }
 # Add workspace crates for integration tests
 nestgate-types = { path = "code/crates/nestgate-types" }
 nestgate-zfs = { path = "code/crates/nestgate-zfs" }
-nestgate-nas = { path = "code/crates/nestgate-nas" }
 nestgate-performance = { path = "code/crates/nestgate-performance" }
 criterion.workspace = true
 temp-env = { workspace = true }
@@ -68,7 +67,6 @@ members = [
     "code/crates/nestgate-env-process-shim",
     "code/crates/nestgate-core",
     "code/crates/nestgate-installer",
-    "code/crates/nestgate-nas",
     "code/crates/nestgate-observe",
     "code/crates/nestgate-performance",
     "code/crates/nestgate-platform",

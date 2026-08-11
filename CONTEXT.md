@@ -1,6 +1,6 @@
 # Context — NestGate
 
-**Last Updated**: Aug 10, 2026 (Session 146)
+**Last Updated**: Aug 11, 2026 (Session 147)
 
 ## What This Is
 
@@ -24,13 +24,13 @@ than by importing this crate graph.
 | **Version** | 0.5.0 |
 | **Language** | Rust 2024 edition (env-process-shim: 2021 for safe env mutation); 100% Rust application code |
 | **License** | AGPL-3.0-or-later (code); CC-BY-SA 4.0 (documentation) |
-| **Tests** | 1,630+ passed, 0 failed (~80 ignored) |
+| **Tests** | 1,666 passed, 0 failed (~52 ignored) |
 | **Coverage** | 84%+ line (`cargo llvm-cov`); 90% target pending |
-| **Architecture** | 18 workspace crates under `code/crates/` |
+| **Architecture** | 17 workspace crates under `code/crates/` |
 | **Binary** | Single self-contained release binary |
 | **IPC** | JSON-RPC 2.0 (required); tarpc via G65 protocol negotiation on UDS + TCP (G66 transport abstraction); C2 dual-socket retained for backward compat |
 | **TLS/crypto** | `ureq` + `oxitls-rustcrypto-provider` (pure Rust TLS); internal crypto BLAKE3; ring/reqwest/openssl eliminated; installer uses system `curl` |
-| **Unsafe** | `#![forbid(unsafe_code)]` on ALL crate roots (zero exceptions) |
+| **Unsafe** | `#![forbid(unsafe_code)]` on ALL 17 crate roots (zero exceptions) |
 | **Lint / format** | `cargo clippy --workspace --all-targets --all-features -- -D warnings` zero warnings (pedantic + nursery); `cargo fmt --check` clean |
 | **Docs** | `cargo doc --workspace --no-deps` — clean with `-D warnings` |
 | **Platforms** | Linux, FreeBSD, macOS, WSL2, illumos, Android; Windows cross-arch builds (G66 transport, G68 platform substrate) |
@@ -43,10 +43,10 @@ than by importing this crate graph.
 `nestgate-zfs`, `nestgate-discovery`, `nestgate-security`,
 `nestgate-cache`, `nestgate-observe`, `nestgate-storage`, `nestgate-performance`,
 `nestgate-canonical`,
-`nestgate-installer`, `nestgate-nas`,
+`nestgate-installer`,
 `nestgate-platform`, `nestgate-bin`, `nestgate-env-process-shim`.
 
-Deprecated/shed (removed from workspace): `nestgate-network`, `nestgate-automation`, `nestgate-mcp`.
+Deprecated/shed (removed from workspace): `nestgate-network`, `nestgate-automation`, `nestgate-mcp`, `nestgate-nas` (S147).
 
 ### Canonical trait surface (high level)
 

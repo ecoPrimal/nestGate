@@ -1700,7 +1700,6 @@ dependencies = [
  "futures-util",
  "nestgate-canonical",
  "nestgate-core",
- "nestgate-nas",
  "nestgate-performance",
  "nestgate-types",
  "nestgate-zfs",
@@ -1956,21 +1955,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
-]
-
-[[package]]
-name = "nestgate-nas"
-version = "0.5.0"
-dependencies = [
- "anyhow",
- "nestgate-core",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 2.0.19",
- "tokio",
- "tokio-test",
- "tracing",
 ]
 
 [[package]]

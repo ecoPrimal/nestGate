@@ -10,6 +10,8 @@
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use nestgate_config::constants::system::DEFAULT_SERVICE_NAME;
 use nestgate_types::error::{ErrorContextExt, NestGateError, Result};
+
+use super::gossip_events;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 use std::time::Instant;
@@ -260,6 +262,14 @@ pub async fn content_store_stream_chunk(params: &Value) -> Result<Value> {
             .await
             .io_ctx("write content stream sidecar")?;
     }
+
+    gossip_events::emit_object_stored(
+        &blake3_hex,
+        upload.total_size,
+        "content.store_stream",
+        deduplicated,
+        &family_id,
+    );
 
     Ok(json!({
         "stream_id": stream_id,

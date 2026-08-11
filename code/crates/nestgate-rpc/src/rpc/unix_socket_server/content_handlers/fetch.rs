@@ -43,6 +43,7 @@ use std::io::{Read, Write};
 use tracing::debug;
 
 use super::super::StorageState;
+use crate::rpc::gossip_events;
 use super::super::storage_paths::{
     build_http_agent, content_key_path, http_user_agent, resolve_cas_object, resolve_family_id,
     validate_fetch_url,
@@ -225,6 +226,8 @@ fn do_fetch_to_cas(
         serde_json::to_vec_pretty(&meta).unwrap_or_default(),
     )
     .map_err(|e| NestGateError::io_error(format!("content.fetch: meta write failed: {e}")))?;
+
+    gossip_events::emit_object_stored(&hash_hex, total_bytes, "content.fetch", false, family_id);
 
     Ok(json!({
         "hash": hash_hex,

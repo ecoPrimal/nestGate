@@ -313,8 +313,8 @@ pub fn initialize() -> Result<SimdEngine> {
 
     if !caps.sse2 {
         return Err(NestGateUnifiedError::system(
-            String::from("SIMD acceleration requires at least SSE2 support"),
-            String::from("simd_initialization"),
+            "SIMD acceleration requires at least SSE2 support",
+            "simd_initialization",
         ));
     }
 
@@ -385,7 +385,7 @@ mod tests {
 
     #[test]
     fn test_simd_metrics() {
-        let mut metrics = SimdMetrics::new(String::from("test_operation"), 1000);
+        let mut metrics = SimdMetrics::new("test_operation".into(), 1000);
 
         metrics.calculate_throughput(1_000_000); // 1ms
         metrics.set_speedup(4.5);

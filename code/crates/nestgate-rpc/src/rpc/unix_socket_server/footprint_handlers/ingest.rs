@@ -24,6 +24,7 @@ use tracing::{debug, info};
 use super::super::StorageState;
 use super::super::storage_paths::{content_cas_path, content_hash_hex, resolve_family_id};
 use super::types::{FootPrintManifest, FootPrintProject, ProjectRevision};
+use crate::rpc::gossip_events;
 
 /// Resolve the footprint storage root for a given family.
 ///
@@ -101,6 +102,15 @@ fn store_content_cas(family_id: &str, data: &[u8]) -> Result<String> {
     if let Ok(meta_str) = serde_json::to_string_pretty(&meta) {
         let _ = std::fs::write(&meta_path, meta_str);
     }
+
+    gossip_events::emit(gossip_events::CasEvent {
+        kind: gossip_events::CasEventKind::FootprintStored,
+        hash: hash.clone(),
+        size: data.len() as u64,
+        pipeline: "footprint.save",
+        deduplicated: false,
+        family_id: String::new(),
+    });
 
     Ok(hash)
 }
