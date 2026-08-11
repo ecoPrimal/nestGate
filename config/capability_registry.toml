@@ -3,7 +3,6 @@
 # Copyright (c) 2025-2026 ecoPrimals Collective
 #
 # Canonical location for ecosystem tooling (Wave 78 convention).
-# A backward-compat copy lives at the repo root.
 #
 # This file is the single source of truth for NestGate's primal identity
 # and advertised capabilities. Wire Standard L3 responses and cross-check

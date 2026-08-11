@@ -1,6 +1,6 @@
 # NestGate Documentation Index
 
-**Last Updated**: Aug 6, 2026 (Session 138)  
+**Last Updated**: Aug 10, 2026 (Session 146)  
 **Version**: 0.5.0
 
 Paths linked below exist in this repository as of August 2026.
@@ -64,7 +64,7 @@ nestgate/
 │   ├── nestgate-api/               # REST + JSON-RPC API server
 │   ├── nestgate-zfs/               # ZFS integration (adaptive)
 │   └── ...                         # 14 additional crates
-├── docs/                           # Documentation (api, architecture, guides)
+├── docs/                           # Documentation (guides, handoffs)
 └── tests/                          # Integration tests
 ```
 
@@ -80,6 +80,6 @@ Crate-level benchmarks: `code/crates/nestgate-core/benches/`, `code/crates/nestg
 
 ---
 
-**Status**: Documentation updated Aug 6, 2026 (Session 138).  
+**Status**: Documentation updated Aug 10, 2026 (Session 146).  
 **Ground Truth**: See [STATUS.md](./STATUS.md) for current measured metrics.  
-**Last Updated**: Aug 6, 2026 (Session 138)
+**Last Updated**: Aug 10, 2026 (Session 146)

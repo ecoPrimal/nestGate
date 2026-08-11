@@ -2,7 +2,7 @@
 
 **Version**: 0.5.0  
 
-**Verification (as of 2026-08-06, Session 138)**  
+**Verification (as of 2026-08-10, Session 146)**  
 - **Build**: `cargo check --workspace --all-features` — PASS  
 - **Clippy**: `cargo clippy --all-features -- -D warnings` — PASS (zero warnings, pedantic+nursery)  
 - **Tests**: 1,630+ passed, 0 failed (~80 ignored)  
@@ -17,7 +17,7 @@
 - **Open debt markers**: zero `TODO`/`FIXME`/`HACK`/`XXX` in production `.rs`  
 - **Hardcoding**: `DEFAULT_SERVICE_NAME` constant used everywhere; zero `"nestgate"` string literals in production code  
 - **Deprecated APIs**: 0 `#[deprecated]` markers (114 premature deprecations cleaned Session 43w; dead code removed)  
-- **External deps**: Zero unused workspace deps (`lru`/`getrandom` removed Wave 128b; `fastrand` consolidated → `rand`); zero C-FFI `-sys` crates in production; `config` (crates.io) and `urlencoding` removed Session 43z  
+- **External deps**: Zero unused workspace deps (`lru`/`getrandom` removed Wave 128b; `fastrand` consolidated → `rand`); `jsonrpsee` removed S145 (G72 — 1,864 LOC excised); zero C-FFI `-sys` crates in production; `config` (crates.io) and `urlencoding` removed Session 43z  
 - **Unsafe**: `#![forbid(unsafe_code)]` on ALL crate roots (zero exceptions); nestgate-zfs uses unconditional forbid (formerly `cfg`-gated outside tests)  
 - **TLS/crypto**: `ring`/`reqwest` eliminated — `ureq` + `oxitls-rustcrypto-provider 0.2.1` (pure Rust TLS, no vendoring); internal crypto consolidated to BLAKE3 (`blake3::keyed_hash` for MACs, `blake3::derive_key` for KDF, `blake3::hash` for checksums/fingerprints); `sha2`/`hmac` optional behind `s3-backend` feature in nestgate-zfs for AWS SigV4 only; installer uses system `curl`  
 - **sysinfo**: Optional — Linux uses pure-Rust `/proc` parsing; `sysinfo` only on non-Linux  
@@ -28,7 +28,7 @@
 - **BTSP Phase 3**: `btsp.negotiate` server-side encrypted channel (ChaCha20-Poly1305 AEAD, BLAKE3 KDF key derivation, length-prefixed framing); wired into both UDS and isomorphic IPC listeners; transport hardened (decrypt/read errors propagate as Err, not silent Ok)
 - **JWT NUCLEUS bypass**: BTSP composition auto-detected via `is_btsp_required()` — skips `NESTGATE_JWT_SECRET` validation when FAMILY_ID signals a NUCLEUS stack
 - **`is_btsp_required` unified**: client delegates to canonical server version (eliminates env-var and `"standalone"` divergence)  
-- **Mocks**: zero in production — `NoopStorage` is intentional null-object backend; all test doubles behind `#[cfg(test)]`; `ZfsBackendType::Mock` removed (dead code); Azure/GCS/ObjectStorage backends return `not_implemented` until REST API wired; 11 ZFS production handlers evolved from fake success to honest `not_implemented`; system memory reads `/proc/meminfo` (was hardcoded 16GB); ARC fallback uses `0.0` (was misleading `0.85`)  
+- **Mocks**: zero in production — `NoopStorage` is intentional null-object backend; all test doubles behind `#[cfg(test)]`; `ZfsBackendType::Mock` removed (dead code); Azure/GCS/S3 backends return `NestGateError::not_implemented` (S146 — was silent fake success); orchestrator registration fails loudly when outbound RPC not wired; `start_load_test` HTTP handler returns 501 (S146); 11 ZFS production handlers evolved from fake success to honest `not_implemented`; system memory reads `/proc/meminfo` (was hardcoded 16GB); ARC fallback uses `0.0` (was misleading `0.85`)  
 - **Primal sovereignty**: zero hardcoded other-primal names in production; capability-based socket discovery (`security.sock`, `crypto.sock`); `DEFAULT_SERVICE_NAME` for self-references  
 - **Streaming storage**: `storage.store_stream` / `retrieve_stream` chunked protocol for large tensors (streaming capability providers)  
 - **TCP alongside UDS**: `--port` / `NESTGATE_JSONRPC_TCP` activates TCP JSON-RPC listener (UniBin compliance)  
