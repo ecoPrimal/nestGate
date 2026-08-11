@@ -226,21 +226,7 @@ pub async fn coord_ingest(params: Option<&Value>, state: &StorageState) -> Resul
 
         store_artifact(family_id, &hash, &raw)?;
 
-        let coord_artifact = CoordArtifact {
-            hash: hash.clone(),
-            kind: kind.clone(),
-            title: title.clone(),
-            wave: wave.clone(),
-            gate: gate.clone(),
-            ingested_at: chrono::Utc::now().to_rfc3339(),
-            content_hash: hash.clone(),
-            spine_index: None,
-            braid_id: None,
-        };
-
-        manifest.artifacts.insert(hash.clone(), coord_artifact);
-
-        match kind {
+        match &kind {
             ArtifactKind::Blurb => {
                 manifest.current_blurb = Some(hash.clone());
                 if !manifest.blurb_history.contains(&hash) {
@@ -256,7 +242,7 @@ pub async fn coord_ingest(params: Option<&Value>, state: &StorageState) -> Resul
                 manifest.current_wave = Some(hash.clone());
             }
             ArtifactKind::Head => {
-                if let Some(ref g) = gate {
+                if let Some(g) = &gate {
                     manifest.heads.insert(g.clone(), hash.clone());
                 }
             }
@@ -273,11 +259,26 @@ pub async fn coord_ingest(params: Option<&Value>, state: &StorageState) -> Resul
         ingested.push(json!({
             "filename": filename,
             "kind": kind.as_str(),
-            "hash": hash,
-            "title": title,
-            "wave": wave,
-            "gate": gate,
+            "hash": &hash,
+            "title": &title,
+            "wave": &wave,
+            "gate": &gate,
         }));
+
+        let content_hash = hash.clone();
+        let coord_artifact = CoordArtifact {
+            hash: content_hash,
+            kind,
+            title,
+            wave,
+            gate,
+            ingested_at: chrono::Utc::now().to_rfc3339(),
+            content_hash: hash.clone(),
+            spine_index: None,
+            braid_id: None,
+        };
+
+        manifest.artifacts.insert(hash, coord_artifact);
     }
 
     manifest.updated_at = chrono::Utc::now().to_rfc3339();

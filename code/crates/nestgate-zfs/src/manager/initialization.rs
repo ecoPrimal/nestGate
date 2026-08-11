@@ -21,7 +21,7 @@ use crate::{
     dataset::ZfsDatasetManager,
     error::Result,
     health::ZfsHealthMonitor,
-    metrics::ZfsMetrics, // migration::MigrationEngine, // Module not yet implemented
+    metrics::ZfsMetrics,
     performance::ZfsPerformanceMonitor,
     pool::ZfsPoolManager,
     snapshot::ZfsSnapshotManager,

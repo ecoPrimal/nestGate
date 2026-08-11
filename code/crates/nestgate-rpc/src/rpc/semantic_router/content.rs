@@ -8,31 +8,10 @@
 //! `StorageState`.
 
 use super::{MetadataBackend, SemanticRouter};
-use crate::rpc::unix_socket_server::StorageState;
+use crate::rpc::shared_state::shared_state;
+use crate::rpc::unix_socket_server::{content_federation_handlers, content_handlers};
 use nestgate_types::error::Result;
 use serde_json::Value;
-use std::sync::OnceLock;
-
-use crate::rpc::unix_socket_server::content_federation_handlers;
-
-/// Cached [`StorageState`] for content handler delegation.
-///
-/// Content operations are stateless filesystem ops keyed by `family_id` and
-/// BLAKE3 hashes. A single shared `StorageState` avoids re-initializing
-/// template/audit backends on every call while remaining correct because
-/// content handlers only read `family_id` and `encryption` from it.
-fn shared_state() -> &'static StorageState {
-    static STATE: OnceLock<StorageState> = OnceLock::new();
-    STATE.get_or_init(|| {
-        #[expect(
-            clippy::expect_used,
-            reason = "StorageState::new only fails on unrecoverable I/O — crash is correct"
-        )]
-        StorageState::new().expect("StorageState initialization must not fail for content routing")
-    })
-}
-
-use crate::rpc::unix_socket_server::content_handlers;
 
 /// Route `content.put` → content-addressed store (BLAKE3 hash-as-key).
 pub(super) async fn content_put(

@@ -46,5 +46,6 @@ dev-stubs = []
 [dev-dependencies]
 serial_test = { workspace = true }
 temp-env = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }
 tokio-test = { workspace = true }
 tempfile = { workspace = true }

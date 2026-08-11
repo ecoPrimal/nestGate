@@ -80,6 +80,7 @@ tokio-serde = { workspace = true, features = ["bincode"] }
 nestgate-observe = { path = "../nestgate-observe", features = ["sysinfo"] }
 
 [dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
 tokio-test = { workspace = true }
 tempfile = { workspace = true }
 criterion = { workspace = true }

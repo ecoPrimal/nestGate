@@ -7,24 +7,10 @@
 //! through a shared `StorageState`.
 
 use super::{MetadataBackend, SemanticRouter};
-use crate::rpc::unix_socket_server::StorageState;
+use crate::rpc::shared_state::shared_state;
+use crate::rpc::unix_socket_server::dataset_handlers;
 use nestgate_types::error::Result;
 use serde_json::Value;
-use std::sync::OnceLock;
-
-use crate::rpc::unix_socket_server::dataset_handlers;
-
-/// Cached [`StorageState`] for dataset handler delegation.
-fn shared_state() -> &'static StorageState {
-    static STATE: OnceLock<StorageState> = OnceLock::new();
-    STATE.get_or_init(|| {
-        #[expect(
-            clippy::expect_used,
-            reason = "StorageState::new only fails on unrecoverable I/O — crash is correct"
-        )]
-        StorageState::new().expect("StorageState initialization must not fail for dataset routing")
-    })
-}
 
 /// Route `dataset.convergence` → CAS provenance state scan.
 pub(super) async fn dataset_convergence(

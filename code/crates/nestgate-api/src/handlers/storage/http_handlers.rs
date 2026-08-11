@@ -113,9 +113,18 @@ pub async fn get_storage_metrics() -> Result<Json<StorageMetrics>, (StatusCode, 
         return Err(zfs_unavailable());
     }
     let ops = nestgate_zfs::command::ZfsOperations::new();
-    let pools = ops.list_pools().await.unwrap_or_default();
-    let datasets = ops.list_datasets(None).await.unwrap_or_default();
-    let snapshots = ops.list_snapshots(None).await.unwrap_or_default();
+    let pools = ops.list_pools().await.map_err(|e| {
+        tracing::warn!("ZFS pool enumeration failed: {e}");
+        zfs_unavailable()
+    })?;
+    let datasets = ops.list_datasets(None).await.map_err(|e| {
+        tracing::warn!("ZFS dataset enumeration failed: {e}");
+        zfs_unavailable()
+    })?;
+    let snapshots = ops.list_snapshots(None).await.map_err(|e| {
+        tracing::warn!("ZFS snapshot enumeration failed: {e}");
+        zfs_unavailable()
+    })?;
 
     #[expect(
         clippy::cast_possible_truncation,

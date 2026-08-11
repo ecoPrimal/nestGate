@@ -272,7 +272,8 @@ pub async fn content_sync(params: Option<&Value>, _state: &StorageState) -> Resu
     let clone_missing = params["clone_missing"].as_bool().unwrap_or(false);
     let source = params["source"].as_str().unwrap_or("auto");
 
-    let semaphore = std::sync::Arc::new(tokio::sync::Semaphore::new(parallel as usize));
+    let parallel_permits = usize::try_from(parallel).unwrap_or(4);
+    let semaphore = std::sync::Arc::new(tokio::sync::Semaphore::new(parallel_permits));
     let mut handles = Vec::with_capacity(repos.len());
 
     for repo in repos {

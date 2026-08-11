@@ -59,10 +59,22 @@ impl ZfsManager {
             available_capacity: pools.iter().map(|p| p.capacity.available_bytes).sum(),
         };
 
+        let hot = self.get_real_tier_utilization("hot").await.unwrap_or_else(|e| {
+            tracing::debug!("hot tier utilization probe failed: {e}");
+            0.0
+        });
+        let warm = self.get_real_tier_utilization("warm").await.unwrap_or_else(|e| {
+            tracing::debug!("warm tier utilization probe failed: {e}");
+            0.0
+        });
+        let cold = self.get_real_tier_utilization("cold").await.unwrap_or_else(|e| {
+            tracing::debug!("cold tier utilization probe failed: {e}");
+            0.0
+        });
         let tier_status = TierOverallStatus {
-            hot_utilization: self.get_real_tier_utilization("hot").await.unwrap_or(0.0),
-            warm_utilization: self.get_real_tier_utilization("warm").await.unwrap_or(0.0),
-            cold_utilization: self.get_real_tier_utilization("cold").await.unwrap_or(0.0),
+            hot_utilization: hot,
+            warm_utilization: warm,
+            cold_utilization: cold,
             migration_queue_size: 0,
         };
 
@@ -86,7 +98,10 @@ impl ZfsManager {
         let ai_status = None;
 
         let migration_status = MigrationStatus {
-            active_jobs: self.get_active_migration_jobs().unwrap_or(0),
+            active_jobs: self.get_active_migration_jobs().unwrap_or_else(|e| {
+                tracing::debug!("active migration job count unavailable: {e}");
+                0
+            }),
             queued_jobs: 0,
             completed_jobs: 0,
             failed_jobs: 0,
@@ -94,7 +109,10 @@ impl ZfsManager {
         };
 
         let snapshot_status = SnapshotStatus {
-            total_snapshots: u64::from(self.get_total_snapshots().await.unwrap_or(0)),
+            total_snapshots: u64::from(self.get_total_snapshots().await.unwrap_or_else(|e| {
+                tracing::debug!("snapshot count unavailable: {e}");
+                0
+            })),
             active_policies: 0,
             pending_operations: 0,
             recent_failures: 0,

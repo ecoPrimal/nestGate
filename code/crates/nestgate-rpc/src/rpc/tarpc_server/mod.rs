@@ -141,7 +141,13 @@ impl<S: StorageBackend + 'static> NestGateRpcService<S> {
 
     /// Calculate storage metrics from the backend.
     async fn calculate_metrics(&self) -> StorageMetrics {
-        let datasets = self.backend.list_datasets().await.unwrap_or_default();
+        let datasets = match self.backend.list_datasets().await {
+            Ok(ds) => ds,
+            Err(e) => {
+                tracing::warn!("tarpc metrics: dataset enumeration failed: {e}");
+                Vec::new()
+            }
+        };
         let dataset_count = datasets.len();
         let used_space: u64 = datasets.iter().map(|d| d.size_bytes).sum();
         let object_count: u64 = datasets.iter().map(|d| d.object_count).sum();

@@ -180,7 +180,13 @@ pub(crate) struct StorageState {
 impl StorageState {
     /// Create new storage state (templates/audit; filesystem-backed storage via dataset paths).
     pub(crate) fn new() -> Result<Self> {
-        Ok(Self {
+        Ok(Self::new_infallible())
+    }
+
+    /// Infallible constructor — all constituent backends (`TemplateStorage`,
+    /// `AuditStorage`) initialize without I/O, so this never fails.
+    pub(crate) fn new_infallible() -> Self {
+        Self {
             templates: crate::rpc::template_storage::TemplateStorage::new(),
             audits: crate::rpc::audit_storage::AuditStorage::new(),
             family_id: None,
@@ -189,7 +195,7 @@ impl StorageState {
             method_gate: crate::rpc::method_gate::MethodGate::from_env(),
             caller_context: crate::rpc::method_gate::CallerContext::unix(),
             socket_path: None,
-        })
+        }
     }
 }
 

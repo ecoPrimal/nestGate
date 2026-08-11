@@ -292,12 +292,21 @@ mod infant_discovery_tests_week3 {
     }
 
     #[tokio::test]
-    async fn test_gossip_protocol_convergence() {
-        // Test gossip protocol convergence
-        let rounds = 10;
-        let nodes = 5;
-        let messages = rounds * nodes;
-        assert!(messages >= nodes); // Eventually consistent
+    async fn test_gossip_event_emission_architecture() {
+        let mut rx = nestgate_rpc::rpc::gossip_events::subscribe();
+
+        nestgate_rpc::rpc::gossip_events::emit_object_stored(
+            "abc123def456abc123def456abc123def456abc123def456abc123def456abcd",
+            4096,
+            "content.put",
+            false,
+            "test-family",
+        );
+
+        let event = rx.try_recv().expect("gossip event should be received");
+        assert_eq!(event.pipeline, "content.put");
+        assert_eq!(event.size, 4096);
+        assert!(!event.deduplicated);
     }
 
     #[tokio::test]

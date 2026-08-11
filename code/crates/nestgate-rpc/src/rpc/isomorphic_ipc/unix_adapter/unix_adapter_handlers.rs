@@ -362,19 +362,8 @@ pub(super) async fn handle_beacon_list(state: &StorageState) -> HandlerResult {
 // `unix_socket_server::content_handlers`, bridged through a shared
 // `unix_socket_server::StorageState`.
 
-use crate::rpc::unix_socket_server::{StorageState as ContentState, content_handlers};
-use std::sync::OnceLock;
-
-fn content_state() -> &'static ContentState {
-    static STATE: OnceLock<ContentState> = OnceLock::new();
-    STATE.get_or_init(|| {
-        #[expect(
-            clippy::expect_used,
-            reason = "ContentState::new only fails on unrecoverable I/O — crash is correct"
-        )]
-        ContentState::new().expect("ContentState initialization must not fail for content routing")
-    })
-}
+use crate::rpc::shared_state::shared_state as content_state;
+use crate::rpc::unix_socket_server::content_handlers;
 
 fn content_err(e: &nestgate_types::error::NestGateError) -> (i32, Cow<'static, str>) {
     (

@@ -15,23 +15,12 @@
 //! All functions return [`nestgate_types::error::NestGateError`] on invalid
 //! parameters, missing content, or I/O failure.
 
-use crate::rpc::unix_socket_server::{StorageState, content_federation_handlers, content_handlers};
+use crate::rpc::shared_state::shared_state;
+use crate::rpc::unix_socket_server::{content_federation_handlers, content_handlers};
 use crate::rpc::{content_stream, storage_stream};
 pub use content_handlers::RawContent;
 use nestgate_types::error::Result;
 use serde_json::Value;
-use std::sync::OnceLock;
-
-fn shared_state() -> &'static StorageState {
-    static STATE: OnceLock<StorageState> = OnceLock::new();
-    STATE.get_or_init(|| {
-        #[expect(
-            clippy::expect_used,
-            reason = "StorageState::new only fails on unrecoverable I/O — crash is correct"
-        )]
-        StorageState::new().expect("StorageState initialization must not fail for content ops")
-    })
-}
 
 /// `content.put` — store content-addressed data (BLAKE3 hash-as-key, automatic dedup).
 ///

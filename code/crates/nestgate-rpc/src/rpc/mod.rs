@@ -83,6 +83,7 @@ pub(crate) mod primal_announce;
 pub(crate) mod protocol;
 pub mod protocol_negotiation;
 pub mod semantic_router;
+pub(crate) mod shared_state;
 pub mod socket_config;
 pub mod storage_backend;
 pub mod storage_encryption;

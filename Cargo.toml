@@ -38,6 +38,7 @@ dashmap = { workspace = true }
 serial_test = { workspace = true }
 # once_cell removed: evolved to std::sync::LazyLock
 # Add workspace crates for integration tests
+nestgate-rpc = { path = "code/crates/nestgate-rpc" }
 nestgate-types = { path = "code/crates/nestgate-types" }
 nestgate-zfs = { path = "code/crates/nestgate-zfs" }
 nestgate-performance = { path = "code/crates/nestgate-performance" }
@@ -100,7 +101,6 @@ tokio = { version = "1.0", features = [
     "rt-multi-thread",
     "signal",
     "sync",
-    "test-util",
     "time",
 ] }
 tokio-test = "0.4"

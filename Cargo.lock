@@ -1701,6 +1701,7 @@ dependencies = [
  "nestgate-canonical",
  "nestgate-core",
  "nestgate-performance",
+ "nestgate-rpc",
  "nestgate-types",
  "nestgate-zfs",
  "rand 0.9.5",

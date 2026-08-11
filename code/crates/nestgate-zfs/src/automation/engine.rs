@@ -63,7 +63,6 @@ impl DatasetAutomation {
     pub async fn new(
         pool_manager: Arc<ZfsPoolManager>,
         dataset_manager: Arc<ZfsDatasetManager>,
-        // migration_engine: Arc<RwLock<MigrationEngine>>, // MigrationEngine not yet implemented
         config: DatasetAutomationConfig,
     ) -> Result<Self> {
         info!("Initializing Dataset Automation Engine");
@@ -74,7 +73,6 @@ impl DatasetAutomation {
         let automation = Self {
             pool_manager,
             dataset_manager,
-            // migration_engine, // Commented out - not yet implemented
             policies,
             lifecycle_tracker,
             config,

@@ -10,21 +10,10 @@
 //! Every function accepts a [`serde_json::Value`] parameter object and returns
 //! a JSON-RPC–shaped [`serde_json::Value`] result.
 
-use crate::rpc::unix_socket_server::{StorageState, footprint_handlers};
+use crate::rpc::shared_state::shared_state;
+use crate::rpc::unix_socket_server::footprint_handlers;
 use nestgate_types::error::Result;
 use serde_json::Value;
-use std::sync::OnceLock;
-
-fn shared_state() -> &'static StorageState {
-    static STATE: OnceLock<StorageState> = OnceLock::new();
-    STATE.get_or_init(|| {
-        #[expect(
-            clippy::expect_used,
-            reason = "StorageState::new only fails on unrecoverable I/O — crash is correct"
-        )]
-        StorageState::new().expect("StorageState initialization must not fail for footprint ops")
-    })
-}
 
 /// `footprint.save` — save or update a project with a new CAS revision.
 ///

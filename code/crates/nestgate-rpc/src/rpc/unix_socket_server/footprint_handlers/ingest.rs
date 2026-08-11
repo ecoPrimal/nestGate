@@ -198,11 +198,11 @@ pub async fn footprint_save(params: Option<&Value>, state: &StorageState) -> Res
     };
 
     let is_new_revision = !project.revisions.contains_key(&hash);
-    project.revisions.insert(hash.clone(), revision);
     project.current_revision = Some(hash.clone());
     if is_new_revision {
         project.revision_history.insert(0, hash.clone());
     }
+    project.revisions.insert(hash.clone(), revision);
     project.updated_at = now;
 
     manifest.updated_at = chrono::Utc::now().to_rfc3339();
