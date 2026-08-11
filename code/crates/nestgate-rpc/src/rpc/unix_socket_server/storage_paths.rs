@@ -381,7 +381,7 @@ pub(in crate::rpc::unix_socket_server) fn build_http_agent(
 
 /// Standard `NestGate` HTTP User-Agent header value.
 #[must_use]
-pub(in crate::rpc::unix_socket_server) fn http_user_agent() -> String {
+pub(in crate::rpc) fn http_user_agent() -> String {
     format!("NestGate/{}", env!("CARGO_PKG_VERSION"))
 }
 

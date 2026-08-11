@@ -387,3 +387,11 @@ required = false
 [consumed_capabilities.gossip]
 reason = "CAS event gossip injection — emits ObjectStored/ObjectReplicated/ManifestPublished events to mesh"
 required = false
+
+[consumed_capabilities.http_get]
+reason = "External HTTP fetch routing — content.fetch and storage.fetch_external prefer capability provider over direct ureq (G72 Tier 2)"
+required = false
+
+[consumed_capabilities.mesh_relay]
+reason = "songBird MeshRelay — gossip_events bridge to ecosystem pub-sub (relay/spread/subscribe)"
+required = false

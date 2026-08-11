@@ -57,7 +57,7 @@ async fn handle_request_model_register_rejects_missing_model_id() {
     let err = resp
         .error
         .expect("expected JSON-RPC error for missing model_id");
-    assert_eq!(err.code, -32603);
+    assert_eq!(err.code, -32602);
 }
 
 #[tokio::test]
@@ -72,7 +72,7 @@ async fn handle_request_model_exists_locate_reject_missing_model_id() {
         };
         let resp = handle_request(req, &state).await;
         let err = resp.error.expect("jsonrpc error");
-        assert_eq!(err.code, -32603, "{method} should reject missing model_id");
+        assert_eq!(err.code, -32602, "{method} should reject missing model_id");
     }
 }
 
@@ -94,7 +94,7 @@ async fn handle_request_nat_and_beacon_reject_missing_peer_id() {
         };
         let resp = handle_request(req, &state).await;
         let err = resp.error.expect("jsonrpc error");
-        assert_eq!(err.code, -32603, "{method} should reject missing peer_id");
+        assert_eq!(err.code, -32602, "{method} should reject missing peer_id");
     }
 }
 

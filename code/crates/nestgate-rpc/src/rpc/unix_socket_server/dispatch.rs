@@ -26,6 +26,22 @@ fn take_params(request: &mut JsonRpcRequest) -> Value {
     request.params.take().unwrap_or_else(|| json!({}))
 }
 
+/// Map [`NestGateError`] variants to appropriate JSON-RPC error codes.
+///
+/// Validation and API input errors surface as `-32602 Invalid params` so
+/// callers can distinguish bad requests from server-side failures.
+const fn classify_rpc_error(e: &NestGateError) -> (nestgate_types::JsonRpcErrorCode, &'static str) {
+    match e {
+        NestGateError::Validation(_) | NestGateError::Api(_) => {
+            (nestgate_types::JsonRpcErrorCode::InvalidParams, "Invalid params")
+        }
+        NestGateError::Security(_) => {
+            (nestgate_types::JsonRpcErrorCode::AuthRequired, "Authentication required")
+        }
+        _ => (nestgate_types::JsonRpcErrorCode::InternalError, "Internal error"),
+    }
+}
+
 /// Handle JSON-RPC request
 #[expect(
     clippy::too_many_lines,
@@ -381,16 +397,19 @@ pub(super) async fn handle_request(
             error: None,
             id: request.id,
         },
-        Err(e) => JsonRpcResponse {
-            jsonrpc: Arc::from("2.0"),
-            result: None,
-            error: Some(JsonRpcError::with_data(
-                nestgate_types::JsonRpcErrorCode::InternalError,
-                "Internal error",
-                json!({"error": e.to_string()}),
-            )),
-            id: request.id,
-        },
+        Err(e) => {
+            let (code, label) = classify_rpc_error(&e);
+            JsonRpcResponse {
+                jsonrpc: Arc::from("2.0"),
+                result: None,
+                error: Some(JsonRpcError::with_data(
+                    code,
+                    label,
+                    json!({"error": e.to_string()}),
+                )),
+                id: request.id,
+            }
+        }
     }
 }
 

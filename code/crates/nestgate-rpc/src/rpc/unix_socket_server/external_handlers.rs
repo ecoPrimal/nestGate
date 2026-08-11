@@ -12,8 +12,8 @@ use tracing::debug;
 use super::StorageState;
 use crate::rpc::gossip_events;
 use super::storage_paths::{
-    blob_key_path, build_http_agent, content_hash_hex, dataset_key_path, ensure_parent_dirs,
-    extract_namespace, http_user_agent, resolve_family_id, validate_fetch_url,
+    blob_key_path, content_hash_hex, dataset_key_path, ensure_parent_dirs, extract_namespace,
+    resolve_family_id, validate_fetch_url,
 };
 
 /// `storage.object.size` — get size of a stored object without reading its content.
@@ -123,9 +123,9 @@ async fn try_cached_external(url: &str, cache_key: &str, family_id: &str) -> Res
 
 /// Fetch a URL, BLAKE3-hash the payload, cache it, and return provenance metadata.
 ///
-/// Uses `ureq` (pure-Rust HTTP) with `rustls-rustcrypto` (pure-Rust TLS) —
-/// zero C/ASM dependencies, fully ecoBin-compliant.  The sync HTTP call runs
-/// inside `spawn_blocking` so the tokio runtime stays unblocked.
+/// Routes through `http_provider` which prefers capability-based `http.get`
+/// when a provider is discovered, falling back to direct `ureq` (pure-Rust
+/// TLS, zero C deps).
 async fn do_external_fetch(
     url: &str,
     cache_key: &str,
@@ -134,37 +134,11 @@ async fn do_external_fetch(
 ) -> Result<Value> {
     debug!("storage.fetch_external: fetching '{url}' as '{cache_key}' (family={family_id})");
 
-    let url_owned = url.to_owned();
     let timeout = std::time::Duration::from_secs(timeout_secs);
-    let user_agent = http_user_agent();
+    let resp = crate::rpc::http_provider::fetch_url(url, timeout, true).await?;
 
-    let (content_type, payload_bytes) = tokio::task::spawn_blocking(move || -> Result<_> {
-        let agent = build_http_agent(timeout, true);
-
-        let mut response = agent
-            .get(&url_owned)
-            .header("User-Agent", &user_agent)
-            .call()
-            .map_err(|e| NestGateError::io_error(format!("Fetch failed for {url_owned}: {e}")))?;
-
-        let ct = response
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream")
-            .to_owned();
-
-        let body = response
-            .body_mut()
-            .read_to_vec()
-            .io_ctx("Failed to read body")?;
-
-        Ok::<_, NestGateError>((ct, body))
-    })
-    .await
-    .io_ctx("Fetch task failed")??;
-
-    let payload_bytes = bytes::Bytes::from(payload_bytes);
+    let content_type = resp.content_type;
+    let payload_bytes = bytes::Bytes::from(resp.body);
 
     let blake3_hex = content_hash_hex(&payload_bytes);
     debug!(

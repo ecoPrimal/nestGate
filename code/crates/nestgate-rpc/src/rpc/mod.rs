@@ -73,6 +73,7 @@ pub mod coord_ops;
 pub mod dataset_ops;
 pub mod footprint_ops;
 pub mod gossip_events;
+pub(crate) mod http_provider;
 pub mod ipc_protocol;
 pub mod jsonrpc_client;
 pub mod metadata_backend;

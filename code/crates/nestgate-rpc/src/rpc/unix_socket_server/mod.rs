@@ -185,11 +185,17 @@ impl StorageState {
 
     /// Infallible constructor — all constituent backends (`TemplateStorage`,
     /// `AuditStorage`) initialize without I/O, so this never fails.
+    ///
+    /// Reads `NESTGATE_FAMILY_ID` from the environment when present so that
+    /// `HTTP`/`content_ops` callers that omit `family_id` in params still
+    /// resolve to the host's configured family (matching UDS socket-scoped
+    /// behavior).
     pub(crate) fn new_infallible() -> Self {
+        let family_id = std::env::var("NESTGATE_FAMILY_ID").ok();
         Self {
             templates: crate::rpc::template_storage::TemplateStorage::new(),
             audits: crate::rpc::audit_storage::AuditStorage::new(),
-            family_id: None,
+            family_id,
             storage_initialized: true,
             encryption: None,
             method_gate: crate::rpc::method_gate::MethodGate::from_env(),

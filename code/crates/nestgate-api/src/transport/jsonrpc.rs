@@ -184,6 +184,8 @@ where
                 let err_msg = e.to_string();
                 let (code, message) = if err_msg.contains("Unknown method") {
                     (-32601, "Method not found".into())
+                } else if err_msg.contains("Validation") || err_msg.contains("API error") {
+                    (-32602, format!("Invalid params: {e}"))
                 } else {
                     (-32603, format!("Internal error: {e}"))
                 };
@@ -310,11 +312,31 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn handle_request_internal_error_when_not_unknown_method() {
+    async fn handle_request_api_error_returns_invalid_params() {
         struct FailHandler;
         impl RpcMethodHandler for FailHandler {
             async fn handle_method(&self, _method: &str, _params: Value) -> Result<Value> {
                 Err(NestGateError::api_error("boom"))
+            }
+        }
+        let h = JsonRpcHandler::new(FailHandler);
+        let r = h
+            .handle_request(JsonRpcRequest {
+                jsonrpc: "2.0".into(),
+                method: "x".into(),
+                params: Value::Null,
+                id: Value::Null,
+            })
+            .await;
+        assert_eq!(r.error.as_ref().unwrap().code, -32602);
+    }
+
+    #[tokio::test]
+    async fn handle_request_system_error_returns_internal() {
+        struct FailHandler;
+        impl RpcMethodHandler for FailHandler {
+            async fn handle_method(&self, _method: &str, _params: Value) -> Result<Value> {
+                Err(NestGateError::io_error("disk gone"))
             }
         }
         let h = JsonRpcHandler::new(FailHandler);
