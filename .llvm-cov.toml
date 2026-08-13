@@ -21,9 +21,7 @@ summary-only = false
 precision = 2
 
 # Coverage thresholds (wateringHole target: 90% line)
-fail-under-lines = 80
-# fail-under-functions = 85
-# fail-under-regions = 80
+fail-under-lines = 90
 
 # Include doc tests in coverage
 doctests = false  # Enable when we add doc tests

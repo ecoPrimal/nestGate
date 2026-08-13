@@ -374,28 +374,6 @@ async fn test_get_storage_metrics_capacity() {
     }
 }
 
-// ==================== STORAGE MANAGER TESTS ====================
-
-#[test]
-fn test_storage_manager_creation() {
-    let manager = StorageManager::new();
-    assert!(format!("{manager:?}").contains("StorageManager"));
-}
-
-#[test]
-fn test_storage_manager_default() {
-    let manager = StorageManager::default();
-    assert!(format!("{manager:?}").contains("StorageManager"));
-}
-
-#[test]
-fn test_storage_manager_clone() {
-    let manager1 = StorageManager::new();
-    let manager2 = manager1.clone();
-    assert!(format!("{manager1:?}").contains("StorageManager"));
-    assert!(format!("{manager2:?}").contains("StorageManager"));
-}
-
 // ==================== INTEGRATION TESTS ====================
 
 #[tokio::test]
@@ -429,7 +407,7 @@ async fn test_complete_storage_flow() {
 // - StorageDatasetInfo (creation, efficiency)
 // - StorageSnapshotInfo (creation, serialization)
 // - Async handlers (get_storage_pools, get_storage_datasets, etc.)
-// - StorageManager (creation, default, clone)
+// - StorageHandler (creation, default, clone)
 // - Integration (complete flow)
 //
 // Total: 30+ comprehensive tests covering major functionality

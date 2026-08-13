@@ -363,7 +363,7 @@ pub fn engine_entry_json_for_create(request: &CreateDatasetRequest) -> String {
 pub fn get_snapshot_count_from_engine_impl() -> u64 {
     let base = std::env::var("NESTGATE_DATA_DIR").unwrap_or_else(|_| {
         std::env::temp_dir()
-            .join("nestgate")
+            .join(nestgate_core::constants::system::DEFAULT_SERVICE_NAME)
             .to_string_lossy()
             .into_owned()
     });

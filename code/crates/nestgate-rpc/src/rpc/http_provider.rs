@@ -36,11 +36,7 @@ pub struct HttpResponse {
 /// # Errors
 ///
 /// Returns [`NestGateError`] on network failure, timeout, or TLS error.
-pub async fn fetch_url(
-    url: &str,
-    timeout: Duration,
-    allow_http: bool,
-) -> Result<HttpResponse> {
+pub async fn fetch_url(url: &str, timeout: Duration, allow_http: bool) -> Result<HttpResponse> {
     if let Some(resp) = try_capability_fetch(url, timeout) {
         return resp;
     }
@@ -53,10 +49,7 @@ pub async fn fetch_url(
 ///
 /// Returns `None` if no provider is available (caller should fall back).
 /// Returns `Some(Ok(...))` on success, `Some(Err(...))` on provider failure.
-const fn try_capability_fetch(
-    _url: &str,
-    _timeout: Duration,
-) -> Option<Result<HttpResponse>> {
+const fn try_capability_fetch(_url: &str, _timeout: Duration) -> Option<Result<HttpResponse>> {
     // G72 Tier 2 bridge point: when an `http.get` capability is discovered
     // at runtime via `discovery.capability.list`, route through it:
     //
@@ -70,11 +63,7 @@ const fn try_capability_fetch(
 }
 
 /// Direct HTTP fetch using `ureq` (pure-Rust TLS).
-async fn direct_fetch(
-    url: &str,
-    timeout: Duration,
-    allow_http: bool,
-) -> Result<HttpResponse> {
+async fn direct_fetch(url: &str, timeout: Duration, allow_http: bool) -> Result<HttpResponse> {
     let url_owned = url.to_owned();
     let user_agent = super::unix_socket_server::storage_paths::http_user_agent();
 
@@ -90,7 +79,9 @@ async fn direct_fetch(
             .get(&url_owned)
             .header("User-Agent", &user_agent)
             .call()
-            .map_err(|e| NestGateError::io_error(format!("HTTP GET failed for {url_owned}: {e}")))?;
+            .map_err(|e| {
+                NestGateError::io_error(format!("HTTP GET failed for {url_owned}: {e}"))
+            })?;
 
         let content_type = response
             .headers()
@@ -116,10 +107,7 @@ mod tests {
 
     #[test]
     fn capability_fetch_returns_none_when_unwired() {
-        let result = try_capability_fetch(
-            "https://example.com",
-            Duration::from_secs(10),
-        );
+        let result = try_capability_fetch("https://example.com", Duration::from_secs(10));
         assert!(result.is_none(), "unwired capability should return None");
     }
 }

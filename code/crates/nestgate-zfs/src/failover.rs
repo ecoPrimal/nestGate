@@ -353,36 +353,63 @@ impl PoolTakeoverManager {
         Ok(orphaned_pools)
     }
 
-    /// Check pool ownership by examining pool properties
-    async fn check_pool_ownership(&self, pool_name: &str, _node_id: &str) -> Result<bool> {
-        // This would check pool properties or metadata to determine ownership
-        // For now, we'll use a simple heuristic
-
-        // Try to get pool properties without importing
+    /// Check pool ownership by examining the `org.nestgate:owner` user property.
+    ///
+    /// A pool is considered orphaned when:
+    /// - It has no `org.nestgate:owner` property set (unmanaged pool)
+    /// - Its `org.nestgate:owner` property matches the `failed_node_id`
+    ///
+    /// If the property is set to a *different* node, the pool belongs to
+    /// another live instance and is NOT orphaned.
+    async fn check_pool_ownership(&self, pool_name: &str, failed_node_id: &str) -> Result<bool> {
         let output = TokioCommand::new("zpool")
             .args(["import", "-N", "-o", "readonly=on", pool_name])
             .output()
             .await;
 
-        // If we can read properties, check for node_id markers
-        match output {
-            Ok(result) => {
-                if result.status.success() {
-                    // Pool was temporarily imported readonly - clean up
-                    let _ = TokioCommand::new("zpool")
-                        .args(["export", pool_name])
-                        .output()
-                        .await;
+        let import_ok = match &output {
+            Ok(result) => result.status.success(),
+            Err(_) => return Ok(false),
+        };
 
-                    // In a real implementation, this would check pool properties
-                    // for ownership markers
-                    Ok(true) // Assume orphaned for now
-                } else {
-                    Ok(false)
-                }
-            }
-            Err(_) => Ok(false),
+        if !import_ok {
+            return Ok(false);
         }
+
+        let owner_output = TokioCommand::new("zpool")
+            .args(["get", "-H", "-o", "value", "org.nestgate:owner", pool_name])
+            .output()
+            .await;
+
+        let _ = TokioCommand::new("zpool")
+            .args(["export", pool_name])
+            .output()
+            .await;
+
+        let owner_value = match owner_output {
+            Ok(result) if result.status.success() => {
+                String::from_utf8_lossy(&result.stdout).trim().to_owned()
+            }
+            _ => String::new(),
+        };
+
+        if owner_value.is_empty() || owner_value == "-" {
+            debug!(
+                pool = pool_name,
+                "pool has no ownership marker — treating as orphaned"
+            );
+            return Ok(true);
+        }
+
+        let is_orphaned = owner_value == failed_node_id;
+        debug!(
+            pool = pool_name,
+            owner = %owner_value,
+            failed_node = failed_node_id,
+            is_orphaned,
+            "ownership property check complete"
+        );
+        Ok(is_orphaned)
     }
 
     /// Update pool metadata in our tracking system

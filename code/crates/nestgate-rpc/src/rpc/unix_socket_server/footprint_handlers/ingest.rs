@@ -14,6 +14,8 @@
 //! footPrint projects automatic deduplication, federation, HTTP serving, and
 //! provenance sidecars for free.
 
+use std::collections::btree_map::Entry;
+
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use nestgate_config::config::storage_paths::get_storage_base_path;
 use nestgate_config::constants::system::DEFAULT_SERVICE_NAME;
@@ -103,6 +105,7 @@ fn store_content_cas(family_id: &str, data: &[u8]) -> Result<String> {
         let _ = std::fs::write(&meta_path, meta_str);
     }
 
+    // CasEvent owns `hash`; caller still needs the return value — one clone is unavoidable.
     gossip_events::emit(gossip_events::CasEvent {
         kind: gossip_events::CasEventKind::FootprintStored,
         hash: hash.clone(),
@@ -170,40 +173,53 @@ pub async fn footprint_save(params: Option<&Value>, state: &StorageState) -> Res
     let mut manifest = load_manifest(family_id)?;
     let now = chrono::Utc::now().to_rfc3339();
 
-    let project = manifest
-        .projects
-        .entry(project_id.to_owned())
-        .or_insert_with(|| {
+    // Entry API moves `name`/`metadata` into new projects instead of cloning for or_insert_with.
+    match manifest.projects.entry(project_id.to_owned()) {
+        Entry::Vacant(entry) => {
             manifest.project_count += 1;
-            FootPrintProject::new(project_id.to_owned(), name.clone(), metadata.clone())
-        });
-
-    if params["name"].is_string() {
-        project.name = name;
+            let project_key = entry.key().clone();
+            entry.insert(FootPrintProject::new(project_key, name, metadata));
+        }
+        Entry::Occupied(mut entry) => {
+            let project = entry.get_mut();
+            if params["name"].is_string() {
+                project.name = name;
+            }
+            if params.get("metadata").is_some() {
+                project.metadata = metadata;
+            }
+        }
     }
-    if params.get("metadata").is_some() {
-        project.metadata = metadata;
-    }
 
-    let parent = project.current_revision.clone();
+    let project = manifest.projects.get_mut(project_id).ok_or_else(|| {
+        NestGateError::io_error("footprint.save: project entry missing after insert")
+    })?;
+
+    let is_new_revision = !project.revisions.contains_key(&hash);
+    // take() transfers parent pointer; clone would duplicate the optional hash string.
+    let parent = project.current_revision.take();
 
     let revision = ProjectRevision {
-        hash: hash.clone(),
-        message: message.clone(),
-        saved_at: now.clone(),
+        hash: hash.clone(),       // map key and revision.hash are separate owned slots
+        message: message.clone(), // response json consumes `message` after this
+        saved_at: now.clone(),    // `now` moves into project.updated_at below
         parent,
         size: raw.len() as u64,
         spine_index: None,
         braid_id: None,
     };
 
-    let is_new_revision = !project.revisions.contains_key(&hash);
-    project.current_revision = Some(hash.clone());
     if is_new_revision {
         project.revision_history.insert(0, hash.clone());
     }
-    project.revisions.insert(hash.clone(), revision);
+    let response_hash = hash.clone();
+    project.current_revision = Some(response_hash.clone());
+    let hash_prefix = hash[..12].to_owned();
+    // Move `hash` as the BTreeMap key — no extra clone vs inserting hash.clone().
+    project.revisions.insert(hash, revision);
     project.updated_at = now;
+
+    let revision_count = project.revision_history.len();
 
     manifest.updated_at = chrono::Utc::now().to_rfc3339();
     manifest.version += 1;
@@ -212,16 +228,16 @@ pub async fn footprint_save(params: Option<&Value>, state: &StorageState) -> Res
     info!(
         "footprint.save: project={} revision={} size={}B",
         project_id,
-        &hash[..12],
+        hash_prefix,
         raw.len()
     );
 
     Ok(json!({
         "project_id": project_id,
-        "hash": hash,
+        "hash": response_hash,
         "message": message,
         "size": raw.len(),
-        "revision_count": manifest.projects.get(project_id).map_or(0, |p| p.revision_history.len()),
+        "revision_count": revision_count,
         "manifest_version": manifest.version,
     }))
 }

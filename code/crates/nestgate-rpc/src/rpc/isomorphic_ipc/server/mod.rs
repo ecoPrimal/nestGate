@@ -113,15 +113,16 @@ pub trait TarpcStreamHandler: Send + Sync {
 /// Prevents stale sockets from accumulating after crashes or normal shutdown.
 /// See `CAPABILITY_BASED_DISCOVERY_STANDARD.md` v1.3.0 section 6.
 pub struct SocketCleanupGuard {
-    /// Socket file path to remove on drop.
-    pub path: PathBuf,
+    /// Socket file path to remove on drop. `Arc` lets announce tasks share the path
+    /// without cloning the underlying `PathBuf`.
+    pub path: Arc<PathBuf>,
 }
 
 impl Drop for SocketCleanupGuard {
     fn drop(&mut self) {
-        remove_pid_file(&self.path);
+        remove_pid_file(self.path.as_ref());
         if self.path.exists() {
-            if let Err(e) = std::fs::remove_file(&self.path) {
+            if let Err(e) = std::fs::remove_file(self.path.as_ref()) {
                 warn!("Failed to remove socket file {}: {e}", self.path.display());
             } else {
                 info!("Removed socket file: {}", self.path.display());
@@ -311,8 +312,7 @@ impl IsomorphicIpcServer {
                 Ok(cfg) => {
                     cfg.prepare_socket_path()
                         .map_err(|e| anyhow::anyhow!("Failed to prepare socket path: {e}"))?;
-                    let fid = cfg.family_id.clone();
-                    (cfg.socket_path, fid)
+                    (cfg.socket_path, cfg.family_id)
                 }
                 Err(e) => {
                     warn!(
@@ -330,17 +330,20 @@ impl IsomorphicIpcServer {
 
         info!("Transport listener bound: {listener}");
 
+        // Share path across guard + announce task via Arc — avoids PathBuf clones per holder.
+        let socket_path = Arc::new(socket_path);
         let _socket_guard = SocketCleanupGuard {
-            path: socket_path.clone(),
+            path: Arc::clone(&socket_path),
         };
 
-        write_pid_file(&socket_path);
+        write_pid_file(socket_path.as_ref());
 
         {
-            let announce_socket = socket_path.clone();
+            let announce_socket = Arc::clone(&socket_path);
             tokio::spawn(async move {
                 if let Err(e) =
-                    crate::rpc::primal_announce::announce_to_coordinator(&announce_socket).await
+                    crate::rpc::primal_announce::announce_to_coordinator(announce_socket.as_ref())
+                        .await
                 {
                     warn!("primal.announce failed: {e}");
                 }
@@ -349,12 +352,23 @@ impl IsomorphicIpcServer {
 
         #[cfg(unix)]
         let _storage_capability_symlink_guard =
-            crate::rpc::socket_config::StorageCapabilitySymlinkGuard::new(&socket_path, &family_id);
+            crate::rpc::socket_config::StorageCapabilitySymlinkGuard::new(
+                socket_path.as_ref(),
+                &family_id,
+            );
         #[cfg(not(unix))]
         let _storage_capability_marker_guard =
-            crate::rpc::socket_config::StorageCapabilityMarkerGuard::new(&socket_path, &family_id);
+            crate::rpc::socket_config::StorageCapabilityMarkerGuard::new(
+                socket_path.as_ref(),
+                &family_id,
+            );
 
-        Self::serve_listener(listener, self.handler.clone(), self.tarpc_handler.clone()).await
+        Self::serve_listener(
+            listener,
+            Arc::clone(&self.handler),
+            self.tarpc_handler.clone(),
+        )
+        .await
     }
 
     /// Transport-agnostic accept loop.
@@ -560,13 +574,12 @@ impl IsomorphicIpcServer {
 
         info!("BTSP Phase 3: encrypted channel established (isomorphic IPC)");
 
-        let handler = handler.clone();
         crate::rpc::btsp_phase3::transport::run_encrypted_frame_loop(
             reader,
             writer,
             &session_keys,
             |request| {
-                let h = handler.clone();
+                let h = Arc::clone(handler);
                 async move { h.handle_request(request).await }
             },
         )
@@ -643,7 +656,7 @@ impl IsomorphicIpcServer {
     async fn start_tcp_fallback(self: Arc<Self>) -> Result<()> {
         let tcp_server = Arc::new(TcpFallbackServer::new(
             Arc::clone(&self.service_name),
-            self.handler.clone(),
+            Arc::clone(&self.handler),
         ));
 
         tcp_server.start().await

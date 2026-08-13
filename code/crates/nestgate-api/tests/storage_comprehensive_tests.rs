@@ -606,36 +606,6 @@ fn test_storage_handler_clone() {
 }
 
 // =====================================================
-// STORAGE MANAGER TESTS
-// =====================================================
-
-#[test]
-fn test_storage_manager_creation() {
-    let manager = StorageManager::new();
-    assert!(
-        std::mem::size_of_val(&manager) >= 0,
-        "StorageManager should be created"
-    );
-}
-
-#[test]
-fn test_storage_manager_default() {
-    let manager = StorageManager::default();
-    assert!(
-        std::mem::size_of_val(&manager) >= 0,
-        "StorageManager default should work"
-    );
-}
-
-#[test]
-fn test_storage_manager_clone() {
-    let manager = StorageManager::new();
-    let cloned = manager;
-    assert!(
-        std::mem::size_of_val(&cloned) >= 0,
-        "StorageManager should be cloneable"
-    );
-}
 
 // =====================================================
 // ASYNC HANDLER TESTS

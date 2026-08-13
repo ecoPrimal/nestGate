@@ -388,7 +388,15 @@ async fn test_register_with_localhost() {
     let mut service = ZfsService::new(config);
 
     let result = service.register_with_orchestrator("http://localhost:3000");
-    assert!(result.is_ok());
+    assert!(
+        result.is_err(),
+        "register_with_orchestrator requires capability.call RPC — local-only must error"
+    );
+    let err_msg = result.unwrap_err().to_string();
+    assert!(
+        err_msg.contains("capability.call"),
+        "error should reference capability.call requirement: {err_msg}"
+    );
 }
 
 #[tokio::test]
@@ -398,7 +406,10 @@ async fn test_register_with_ipv4() {
     let mut service = ZfsService::new(config);
 
     let result = service.register_with_orchestrator("http://192.168.1.1:8080");
-    assert!(result.is_ok());
+    assert!(
+        result.is_err(),
+        "register_with_orchestrator requires capability.call RPC — local-only must error"
+    );
 }
 
 #[tokio::test]
@@ -409,7 +420,10 @@ async fn test_register_with_very_long_url() {
     let mut service = ZfsService::new(config);
 
     let result = service.register_with_orchestrator(&long_url);
-    assert!(result.is_ok());
+    assert!(
+        result.is_err(),
+        "register_with_orchestrator requires capability.call RPC — local-only must error"
+    );
 }
 
 #[tokio::test]
@@ -419,10 +433,16 @@ async fn test_register_multiple_times() {
     let mut service = ZfsService::new(config);
 
     let result1 = service.register_with_orchestrator("http://example.com");
-    assert!(result1.is_ok());
+    assert!(
+        result1.is_err(),
+        "first registration attempt requires capability.call RPC"
+    );
 
     let result2 = service.register_with_orchestrator("http://example.com");
-    assert!(result2.is_ok());
+    assert!(
+        result2.is_err(),
+        "repeated registration attempt also requires capability.call RPC"
+    );
 }
 
 // ==================== SERIALIZATION TESTS ====================

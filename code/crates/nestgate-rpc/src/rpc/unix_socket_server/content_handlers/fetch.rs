@@ -43,11 +43,11 @@ use std::io::{Read, Write};
 use tracing::debug;
 
 use super::super::StorageState;
-use crate::rpc::gossip_events;
 use super::super::storage_paths::{
     build_http_agent, content_key_path, http_user_agent, resolve_cas_object, resolve_family_id,
     validate_fetch_url,
 };
+use crate::rpc::gossip_events;
 
 /// Chunk size for rate-limited reads (64 KB).
 const CHUNK_SIZE: usize = 64 * 1024;

@@ -12,7 +12,6 @@ mod tests {
     #[tokio::test]
     async fn test_storage_handler_creation() {
         let handler = StorageHandler::new();
-        // Verify handler was created successfully
         assert_eq!(
             std::mem::size_of_val(&handler),
             std::mem::size_of::<StorageHandler>()
@@ -22,28 +21,9 @@ mod tests {
     #[tokio::test]
     async fn test_storage_handler_default() {
         let handler = StorageHandler;
-        // Verify default constructor works
         assert_eq!(
             std::mem::size_of_val(&handler),
             std::mem::size_of::<StorageHandler>()
-        );
-    }
-
-    #[tokio::test]
-    async fn test_storage_manager_creation() {
-        let manager = StorageManager::new();
-        assert_eq!(
-            std::mem::size_of_val(&manager),
-            std::mem::size_of::<StorageManager>()
-        );
-    }
-
-    #[tokio::test]
-    async fn test_storage_manager_default() {
-        let manager = StorageManager::default();
-        assert_eq!(
-            std::mem::size_of_val(&manager),
-            std::mem::size_of::<StorageManager>()
         );
     }
 

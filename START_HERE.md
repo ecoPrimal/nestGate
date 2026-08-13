@@ -4,7 +4,7 @@
 
 ```
 Build:       PASS — cargo check --workspace --all-features (as of Session 146)
-Tests:       PASS — 1,630+ passed, 0 failed, ~80 ignored
+Tests:       PASS — 1,666+ passed, 0 failed, ~80 ignored
 Clippy:      PASS — cargo clippy --all-features -- -D warnings (zero warnings, pedantic+nursery)
 Unsafe:      #![forbid(unsafe_code)] on ALL 18 crate roots (zero exceptions)
 Crypto:      Delegated to security capability provider via IPC; BLAKE3 internal
@@ -98,10 +98,9 @@ nestgate/ (22 workspace packages — see README Architecture)
 ├── nestgate-zfs        ZFS integration (adaptive)
 ├── nestgate-installer  Platform installer (system curl, ecoBin compliant)
 ├── nestgate-canonical  Canonical types
-├── nestgate-nas        NAS integration
 ├── nestgate-performance Performance monitoring
 └── fuzz (workspace)
-Note: nestgate-network, nestgate-automation, nestgate-mcp, tools/unwrap-migrator are deprecated/shed (removed from workspace).
+Shed (removed from workspace): `nestgate-nas`, `nestgate-network`, `nestgate-automation`, `nestgate-mcp`, `nestgate-fsmonitor`, `nestgate-middleware`.
 ```
 
 ### Key Patterns

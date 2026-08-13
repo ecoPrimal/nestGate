@@ -10,11 +10,11 @@ use serde_json::{Value, json};
 use tracing::debug;
 
 use super::super::StorageState;
-use crate::rpc::gossip_events;
 use super::super::storage_paths::{
     content_key_path, ensure_parent_dirs, manifest_path, resolve_family_id,
 };
 use super::{validate_blake3_hex, validate_collection_name};
+use crate::rpc::gossip_events;
 
 /// `content.publish` — store a manifest mapping URL paths to content hashes.
 ///

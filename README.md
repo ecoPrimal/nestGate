@@ -5,12 +5,12 @@
 **Verification (as of 2026-08-10, Session 146)**  
 - **Build**: `cargo check --workspace --all-features` — PASS  
 - **Clippy**: `cargo clippy --all-features -- -D warnings` — PASS (zero warnings, pedantic+nursery)  
-- **Tests**: 1,630+ passed, 0 failed (~80 ignored)  
+- **Tests**: 1,666+ passed, 0 failed (~80 ignored)  
 - **Format**: `cargo fmt --check` — PASS  
 - **Supply chain**: `cargo deny check` — advisories ok, bans ok, licenses ok, sources ok
 
 **Metrics** (re-measure as needed; see [STATUS.md](./STATUS.md))  
-- **Tests (last recorded)**: 1,630+ passed, 0 failed (~80 ignored)
+- **Tests (last recorded)**: 1,666+ passed, 0 failed (~80 ignored)
 - **Coverage**: 84%+ line (`cargo llvm-cov --workspace --lib --summary-only`; wateringHole 80% met; 90% target pending)
 
 **Technical debt (honest)**  
@@ -130,10 +130,9 @@ nestgate/ (22 workspace packages: 20 code/crates + fuzz + root)
 ├── nestgate-bin         CLI binary (UniBin)
 ├── nestgate-zfs         ZFS integration (adaptive)
 ├── nestgate-installer   Platform installer (system curl, ecoBin compliant)
-├── nestgate-nas         NAS integration
 └── nestgate-performance Performance monitoring
 ```
-Deprecated/shed (removed from workspace): `nestgate-network`, `nestgate-automation`, `nestgate-mcp`, `tools/unwrap-migrator`.
+Shed (removed): `nestgate-nas`, `nestgate-network`, `nestgate-automation`, `nestgate-mcp`, `nestgate-fsmonitor`, `nestgate-middleware`.
 
 The core was decomposed across two phases from a 295K-line monolith (488s check)
 into 13 focused crates that compile in parallel. `nestgate-core` re-exports all
@@ -165,7 +164,7 @@ See [STATUS.md](./STATUS.md) for measured metrics. Verified as of 2026-08-06 (Se
 | Build | `cargo check --workspace --all-features --all-targets` — PASS |
 | Clippy | `cargo clippy --workspace --all-targets --all-features -- -D warnings` — PASS (zero warnings) |
 | Format | `cargo fmt --all --check` — PASS |
-| Tests | 1,630+ passed, 0 failed (~80 ignored) |
+| Tests | 1,666+ passed, 0 failed (~80 ignored) |
 | Coverage | 84%+ line (llvm-cov) — wateringHole 80% met; 90% target pending |
 | Docs | `cargo doc --workspace --no-deps` — zero warnings |
 | Deprecated | 0 `#[deprecated]` markers (114 premature deprecations cleaned Session 43w) |

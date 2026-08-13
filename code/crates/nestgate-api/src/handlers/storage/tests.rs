@@ -9,8 +9,8 @@ use super::http_handlers::{
 };
 use super::probes;
 use super::types::{
-    StorageDataset, StorageDatasetInfo, StorageManager, StorageMetrics, StoragePool,
-    StoragePoolInfo, StorageSnapshot, StorageSnapshotInfo,
+    StorageDataset, StorageDatasetInfo, StorageMetrics, StoragePool, StoragePoolInfo,
+    StorageSnapshot, StorageSnapshotInfo,
 };
 
 #[test]
@@ -150,12 +150,6 @@ async fn test_get_storage_metrics_without_zfs() {
         let (status, _body) = result.unwrap_err();
         assert_eq!(status, axum::http::StatusCode::SERVICE_UNAVAILABLE);
     }
-}
-
-#[test]
-fn test_storage_manager_new() {
-    let _ = StorageManager::new();
-    let _ = StorageManager::default();
 }
 
 #[test]

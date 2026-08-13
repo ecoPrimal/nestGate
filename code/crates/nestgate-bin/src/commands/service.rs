@@ -355,7 +355,7 @@ async fn start_socket_server(tcp_addr: Option<SocketAddr>) -> BinResult<()> {
 
         nestgate_core::rpc::write_pid_file(&tarpc_socket_path);
         let guard = nestgate_core::rpc::SocketCleanupGuard {
-            path: tarpc_socket_path.clone(),
+            path: Arc::new(tarpc_socket_path.clone()),
         };
 
         let tarpc_path = tarpc_socket_path;

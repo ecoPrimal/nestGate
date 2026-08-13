@@ -10,11 +10,11 @@ use std::path::PathBuf;
 use tracing::debug;
 
 use super::StorageState;
-use crate::rpc::gossip_events;
 use super::storage_paths::{
     blob_key_path, content_hash_hex, dataset_key_path, ensure_parent_dirs, extract_namespace,
     resolve_family_id, validate_fetch_url,
 };
+use crate::rpc::gossip_events;
 
 /// `storage.object.size` — get size of a stored object without reading its content.
 ///

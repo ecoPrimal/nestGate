@@ -1,7 +1,7 @@
 # NestGate - Quick Reference
 
 **Version**: 0.5.0  
-**Tests**: 1,630+ passed, 0 failed (~80 ignored) (see STATUS.md)  
+**Tests**: 1,666+ passed, 0 failed (~80 ignored) (see STATUS.md)  
 **Coverage**: 84%+ line (llvm-cov); target 90%  
 **Clippy**: PASS — `cargo clippy --all-features -- -D warnings` (zero warnings, pedantic+nursery)  
 **Crates**: 18 workspace crates (under `code/crates/`)  

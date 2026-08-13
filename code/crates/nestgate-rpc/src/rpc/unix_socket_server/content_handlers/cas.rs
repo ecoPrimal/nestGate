@@ -10,12 +10,12 @@ use serde_json::{Value, json};
 use tracing::debug;
 
 use super::super::StorageState;
-use crate::rpc::gossip_events;
 use super::super::storage_paths::{
     content_hash_hex, content_key_path, ensure_parent_dirs, resolve_cas_object, resolve_family_id,
     warm_tier_capacity, warm_tier_min_free,
 };
 use super::{maybe_decrypt, merge_sidecar_fields, validate_blake3_hex};
+use crate::rpc::gossip_events;
 
 /// `content.put` — store content-addressed data (BLAKE3 hash as key, automatic dedup).
 ///

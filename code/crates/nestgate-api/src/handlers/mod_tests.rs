@@ -516,14 +516,12 @@ mod handler_functionality_tests {
 
     #[test]
     fn test_storage_handler_new() {
-        let handler = StorageHandler::new();
-        let _ = &handler.manager;
+        let _handler = StorageHandler::new();
     }
 
     #[test]
     fn test_storage_handler_default() {
-        let handler = StorageHandler::default();
-        let _ = &handler.manager;
+        let _handler = StorageHandler::default();
     }
 
     #[test]

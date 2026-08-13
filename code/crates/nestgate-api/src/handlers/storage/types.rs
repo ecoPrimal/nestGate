@@ -131,25 +131,3 @@ pub struct StorageSnapshotInfo {
     /// Snapshot size in gigabytes
     pub size_gb: u64,
 }
-
-/// Storage manager for storage operations
-#[derive(Debug, Clone)]
-/// Manager for Storage operations
-pub struct StorageManager {
-    // Placeholder fields
-}
-
-impl Default for StorageManager {
-    /// Returns the default instance
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl StorageManager {
-    /// Create a new storage manager instance
-    #[must_use]
-    pub const fn new() -> Self {
-        Self {}
-    }
-}

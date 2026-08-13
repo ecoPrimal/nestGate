@@ -186,13 +186,13 @@ impl PerformanceAnalyzer {
     }
 }
 
-/// Storage handler for storage operations
-#[derive(Debug, Clone)]
-/// Handler for Storage requests
-pub struct StorageHandler {
-    /// Storage management _engine for configuration and operations
-    pub manager: crate::handlers::storage::StorageManager,
-}
+/// Storage handler for pool, dataset, snapshot, and metrics operations.
+///
+/// Delegates to the RPC storage layer — real operations flow through
+/// `nestgate-rpc` content handlers and ZFS operations.  This type exists
+/// as the REST/HTTP handler entry point in the handler registry.
+#[derive(Debug, Clone, Copy)]
+pub struct StorageHandler;
 
 impl Default for StorageHandler {
     /// Returns the default instance
@@ -202,12 +202,10 @@ impl Default for StorageHandler {
 }
 
 impl StorageHandler {
-    /// Create a new storage handler with default manager
+    /// Create a new storage handler
     #[must_use]
     pub const fn new() -> Self {
-        Self {
-            manager: crate::handlers::storage::StorageManager::new(),
-        }
+        Self
     }
 }
 

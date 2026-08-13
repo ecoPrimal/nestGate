@@ -184,66 +184,69 @@ pub async fn coord_ingest(params: Option<&Value>, state: &StorageState) -> Resul
     let family_id = resolve_family_id(params, state)?;
     let mut manifest = load_manifest(family_id)?;
 
-    let artifacts = if let Some(arr) = params["artifacts"].as_array() {
-        arr.clone()
-    } else if params["filename"].is_string() {
-        vec![params.clone()]
-    } else {
-        return Err(NestGateError::invalid_input_with_field(
-            "artifacts",
-            "artifacts array or single {filename, content_base64} required",
-        ));
-    };
-
     let mut ingested = Vec::new();
     let mut errors = Vec::new();
 
-    for artifact_val in &artifacts {
+    // Borrow artifact values in-place — no clone of the params array or root object.
+    let mut ingest_one = |artifact_val: &Value| -> Result<()> {
         let Some(filename) = artifact_val["filename"].as_str() else {
             errors.push(json!({"error": "missing filename"}));
-            continue;
+            return Ok(());
         };
 
         let Some(content_b64) = artifact_val["content_base64"].as_str() else {
             errors.push(json!({"error": format!("missing content_base64 for {filename}")}));
-            continue;
+            return Ok(());
         };
 
         let raw = match STANDARD.decode(content_b64) {
             Ok(r) => r,
             Err(e) => {
                 errors.push(json!({"error": format!("invalid base64 for {filename}: {e}")}));
-                continue;
+                return Ok(());
             }
         };
 
         let content_str = String::from_utf8_lossy(&raw);
-        let hash = blake3::hash(&raw).to_hex().to_string();
+        let hash_key = blake3::hash(&raw).to_hex().to_string();
         let kind = ArtifactKind::from_filename(filename);
         let wave = extract_wave_from_content(&content_str, &kind);
         let gate = extract_gate_from_content(&content_str, &kind, filename);
         let title = extract_title(&content_str, &kind, filename);
 
-        store_artifact(family_id, &hash, &raw)?;
+        store_artifact(family_id, &hash_key, &raw)?;
 
-        match &kind {
+        // Build artifact once; hash/content_hash duplicate the same BLAKE3 hex by schema design.
+        let coord_artifact = CoordArtifact {
+            hash: hash_key.clone(),
+            kind,
+            title,
+            wave,
+            gate,
+            ingested_at: chrono::Utc::now().to_rfc3339(),
+            content_hash: hash_key.clone(),
+            spine_index: None,
+            braid_id: None,
+        };
+
+        match coord_artifact.kind {
             ArtifactKind::Blurb => {
-                manifest.current_blurb = Some(hash.clone());
-                if !manifest.blurb_history.contains(&hash) {
-                    manifest.blurb_history.insert(0, hash.clone());
+                if !manifest.blurb_history.contains(&hash_key) {
+                    manifest.blurb_history.insert(0, hash_key.clone());
                 }
+                manifest.current_blurb = Some(hash_key.clone());
             }
             ArtifactKind::Frago | ArtifactKind::Aar => {
-                if !manifest.frago_history.contains(&hash) {
-                    manifest.frago_history.insert(0, hash.clone());
+                if !manifest.frago_history.contains(&hash_key) {
+                    manifest.frago_history.insert(0, hash_key.clone());
                 }
             }
             ArtifactKind::Wave => {
-                manifest.current_wave = Some(hash.clone());
+                manifest.current_wave = Some(hash_key.clone());
             }
             ArtifactKind::Head => {
-                if let Some(g) = &gate {
-                    manifest.heads.insert(g.clone(), hash.clone());
+                if let Some(g) = coord_artifact.gate.as_ref() {
+                    manifest.heads.insert(g.clone(), hash_key.clone());
                 }
             }
         }
@@ -251,34 +254,36 @@ pub async fn coord_ingest(params: Option<&Value>, state: &StorageState) -> Resul
         info!(
             "coord.ingest: ingested {} ({}) hash={} wave={:?}",
             filename,
-            kind.as_str(),
-            &hash[..12],
-            wave
+            coord_artifact.kind.as_str(),
+            &hash_key[..12],
+            coord_artifact.wave
         );
 
         ingested.push(json!({
             "filename": filename,
-            "kind": kind.as_str(),
-            "hash": &hash,
-            "title": &title,
-            "wave": &wave,
-            "gate": &gate,
+            "kind": coord_artifact.kind.as_str(),
+            "hash": &hash_key,
+            "title": &coord_artifact.title,
+            "wave": &coord_artifact.wave,
+            "gate": &coord_artifact.gate,
         }));
 
-        let content_hash = hash.clone();
-        let coord_artifact = CoordArtifact {
-            hash: content_hash,
-            kind,
-            title,
-            wave,
-            gate,
-            ingested_at: chrono::Utc::now().to_rfc3339(),
-            content_hash: hash.clone(),
-            spine_index: None,
-            braid_id: None,
-        };
+        // Move hash_key as the map key — artifact retains its own hash/content_hash copies.
+        manifest.artifacts.insert(hash_key, coord_artifact);
+        Ok(())
+    };
 
-        manifest.artifacts.insert(hash, coord_artifact);
+    if let Some(arr) = params["artifacts"].as_array() {
+        for artifact_val in arr {
+            ingest_one(artifact_val)?;
+        }
+    } else if params["filename"].is_string() {
+        ingest_one(params)?;
+    } else {
+        return Err(NestGateError::invalid_input_with_field(
+            "artifacts",
+            "artifacts array or single {filename, content_base64} required",
+        ));
     }
 
     manifest.updated_at = chrono::Utc::now().to_rfc3339();

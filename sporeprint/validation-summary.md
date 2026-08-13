@@ -1,7 +1,7 @@
 +++
 title = "NestGate Validation Summary"
-description = "Content-addressed storage primal v0.5.0 — 1,630+ tests, 18 crates, 21 capability domains, 5 announced, 4 transport surfaces, Session 146 (deep debt sweep: fake-success elimination, G72 jsonrpsee removal, String::from modernization, cloud backend honesty), CI-DIV-03, NESTGATE-ANDROID-01, STARTUP-NG-01, riboCipher, BTSP auth"
-date = 2026-08-10
+description = "Content-addressed storage primal v0.5.0 — 1,666+ tests, 17 crates, 21 capability domains, 5 announced, 4 transport surfaces, Session 150 (deep debt: module refactoring, zero-copy evolution, placeholder removal, coverage 90%), CI-DIV-03, NESTGATE-ANDROID-01, STARTUP-NG-01, riboCipher, BTSP auth"
+date = 2026-08-13
 
 [taxonomies]
 primals = ["nestgate"]
@@ -10,7 +10,7 @@ springs = ["airspring", "neuralspring", "wetspring", "groundspring"]
 
 ## Status
 
-- **1,630+ tests**, **0 failures** (serial and parallel), 0 clippy warnings
+- **1,666+ tests**, **0 failures** (serial and parallel), 0 clippy warnings (pedantic+nursery)
 - **Session 138 C2 Cephalization dual-socket + deep debt**: tarpc `unix` feature enabled; `serve_tarpc_uds()` binds `nestgate.tarpc.sock` alongside JSON-RPC `nestgate.sock` in NUCLEUS mode; `SocketCleanupGuard` + PID sidecar for tarpc socket; `primal.announce` advertises `endpoints.tarpc_uds`; transport list `["uds", "tarpc_uds", "tcp", "http"]` (phase3-c2); `"nestgate"` string literals → `DEFAULT_SERVICE_NAME` across 7 production files; `discovery_port` doc drift fixed (8500→8083); lint blanket audit confirmed.
 - **Session 137 O8 Nest Atomic Neural API wiring**: `ANNOUNCED_CAPABILITIES` expanded to 5 domains (+`dataset`). `FEDERATION_METHODS` expanded (+`dataset.convergence`). `route.register` dynamic for all announced capabilities. Remote `CapabilityRouter` forwards through coordinator `capability.call`. `MeshRelay` transport resolves through coordinator socket. `capability_registry.toml` `[announce]` updated.
 - **Session 136 O1/O3/O4**: `content.ingest` (bulk directory→CAS, 9 tests). `dataset.convergence` (provenance state per dataset, 10 tests). Dual-path CAS (`NESTGATE_WARM_PATHS`/`NESTGATE_COLD_PATHS` hot/cold tier). `content.fetch`+`content.ingest` wired into semantic router. `dataset` capability domain registered.

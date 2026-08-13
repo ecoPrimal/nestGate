@@ -59,18 +59,27 @@ impl ZfsManager {
             available_capacity: pools.iter().map(|p| p.capacity.available_bytes).sum(),
         };
 
-        let hot = self.get_real_tier_utilization("hot").await.unwrap_or_else(|e| {
-            tracing::debug!("hot tier utilization probe failed: {e}");
-            0.0
-        });
-        let warm = self.get_real_tier_utilization("warm").await.unwrap_or_else(|e| {
-            tracing::debug!("warm tier utilization probe failed: {e}");
-            0.0
-        });
-        let cold = self.get_real_tier_utilization("cold").await.unwrap_or_else(|e| {
-            tracing::debug!("cold tier utilization probe failed: {e}");
-            0.0
-        });
+        let hot = self
+            .get_real_tier_utilization("hot")
+            .await
+            .unwrap_or_else(|e| {
+                tracing::debug!("hot tier utilization probe failed: {e}");
+                0.0
+            });
+        let warm = self
+            .get_real_tier_utilization("warm")
+            .await
+            .unwrap_or_else(|e| {
+                tracing::debug!("warm tier utilization probe failed: {e}");
+                0.0
+            });
+        let cold = self
+            .get_real_tier_utilization("cold")
+            .await
+            .unwrap_or_else(|e| {
+                tracing::debug!("cold tier utilization probe failed: {e}");
+                0.0
+            });
         let tier_status = TierOverallStatus {
             hot_utilization: hot,
             warm_utilization: warm,

@@ -32,13 +32,18 @@ fn take_params(request: &mut JsonRpcRequest) -> Value {
 /// callers can distinguish bad requests from server-side failures.
 const fn classify_rpc_error(e: &NestGateError) -> (nestgate_types::JsonRpcErrorCode, &'static str) {
     match e {
-        NestGateError::Validation(_) | NestGateError::Api(_) => {
-            (nestgate_types::JsonRpcErrorCode::InvalidParams, "Invalid params")
-        }
-        NestGateError::Security(_) => {
-            (nestgate_types::JsonRpcErrorCode::AuthRequired, "Authentication required")
-        }
-        _ => (nestgate_types::JsonRpcErrorCode::InternalError, "Internal error"),
+        NestGateError::Validation(_) | NestGateError::Api(_) => (
+            nestgate_types::JsonRpcErrorCode::InvalidParams,
+            "Invalid params",
+        ),
+        NestGateError::Security(_) => (
+            nestgate_types::JsonRpcErrorCode::AuthRequired,
+            "Authentication required",
+        ),
+        _ => (
+            nestgate_types::JsonRpcErrorCode::InternalError,
+            "Internal error",
+        ),
     }
 }
 
