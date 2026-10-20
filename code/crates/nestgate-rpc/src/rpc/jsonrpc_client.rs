@@ -73,7 +73,10 @@ use super::isomorphic_ipc::TransportStream;
 
 type IpcStream = TransportStream;
 
-/// JSON-RPC 2.0 request
+/// JSON-RPC 2.0 request.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcRequest` — uses `Arc<str>` for zero-copy
+/// performance and `id: u64` instead of `Option<Value>`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonRpcRequest {
     /// JSON-RPC version (always "2.0")
@@ -86,7 +89,10 @@ pub struct JsonRpcRequest {
     pub id: u64,
 }
 
-/// JSON-RPC 2.0 response
+/// JSON-RPC 2.0 response.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcResponse` — uses `Arc<str>` for zero-copy
+/// performance and `id: u64` instead of `Value`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonRpcResponse {
     /// JSON-RPC version (always "2.0")

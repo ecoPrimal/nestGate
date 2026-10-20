@@ -78,8 +78,10 @@ pub type HealthCheckMap = Arc<RwLock<HashMap<String, HealthCheck>>>;
 /// **Service Information Structure**
 ///
 /// Canonical structure for storing service metadata in registries.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — uses `service_id`/`service_type`/
+/// `endpoint`/`health_status` fields instead of canonical `id`/`name`/`endpoints`/`status`.
 #[derive(Debug, Clone)]
-/// Serviceinfo
 pub struct ServiceInfo {
     /// Service identifier
     pub service_id: String,
@@ -178,8 +180,11 @@ pub struct SuppressionRule {
 /// **Health Check Structure**
 ///
 /// Canonical structure for health check configurations.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::HealthCheck` — configuration-oriented (check_id,
+/// component, interval_seconds, timeout_seconds, enabled) rather than result-oriented
+/// (name, passed, message, latency_ms).
 #[derive(Debug, Clone)]
-/// Healthcheck
 pub struct HealthCheck {
     /// Check identifier
     pub check_id: String,

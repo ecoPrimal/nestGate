@@ -126,6 +126,10 @@ impl DiscoveryMechanism for StubDiscovery {
 }
 
 /// Discovered remote service (wire shape preserved for future discovery integration).
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — uses single `endpoint: String`
+/// instead of `endpoints: Vec<String>`, has `health_endpoint` not in canonical, missing
+/// `version` and `status` fields.
 #[derive(Debug, Clone)]
 pub struct ServiceInfo {
     /// Remote service id.

@@ -262,8 +262,10 @@ pub struct DashboardData {
     pub last_updated: std::time::SystemTime,
 }
 
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceStatus` — uses health-oriented variants
+/// (Healthy/Degraded/Unhealthy/Unknown) instead of canonical lifecycle variants
+/// (Running/Starting/Stopped/Degraded/Error/Unknown).
 #[derive(Debug, Clone)]
-/// Status values for Service
 pub enum ServiceStatus {
     /// Healthy
     Healthy,

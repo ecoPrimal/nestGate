@@ -67,9 +67,12 @@ impl fmt::Display for ComponentType {
     }
 }
 
-/// Service information for diagnostics
+/// Service information for diagnostics.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — diagnostics-oriented with
+/// pid, memory_bytes, cpu_percent, command_line, dependencies fields not in canonical;
+/// uses `status: String` instead of `ServiceStatus` enum; missing `endpoints`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Serviceinfo
 pub struct ServiceInfo {
     /// Name
     pub name: String,

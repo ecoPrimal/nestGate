@@ -19,9 +19,11 @@ use crate::rest::{ApiState, DataResponse};
 // SYSTEM DATA HANDLERS
 // ==================== SECTION ====================
 
-/// System health status
+/// System health status.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::HealthStatus` — uses `status: String` instead of
+/// `healthy: bool`; embeds nestGate-specific `services: ServiceStatus` and `timestamp`.
 #[derive(Debug, Serialize, Deserialize)]
-/// Healthstatus
 pub struct HealthStatus {
     /// Overall system status
     pub status: String,
@@ -34,9 +36,11 @@ pub struct HealthStatus {
     /// System timestamp
     pub timestamp: chrono::DateTime<chrono::Utc>,
 }
-/// Service status information
+/// Service status information.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceStatus` — flat struct with named service
+/// fields (zfs_engine, storage_detector, etc.) instead of canonical enum.
 #[derive(Debug, Serialize, Deserialize)]
-/// Servicestatus
 pub struct ServiceStatus {
     /// ZFS _engine status
     pub zfs_engine: String,

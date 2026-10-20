@@ -160,6 +160,7 @@ impl UniversalZfsService for NativeZfsService {
                 } else {
                     "ZFS is not available".into()
                 }),
+                latency_ms: None,
             },
             HealthCheck {
                 name: "pools_accessible".into(),
@@ -169,6 +170,7 @@ impl UniversalZfsService for NativeZfsService {
                 } else {
                     "Cannot access ZFS pools".into()
                 }),
+                latency_ms: None,
             },
         ];
 

@@ -13,7 +13,11 @@ use std::str::FromStr;
 
 use super::ConfigError;
 
-/// Service discovery configuration
+/// Service discovery configuration.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::DiscoveryConfig` — has `enabled` toggle not in
+/// canonical, uses `retry_attempts` instead of `retries`, missing `methods`, `max_services`,
+/// `enable_ipv6`, `fallbacks`. Loads from NESTGATE_ env vars via `EnvSource`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiscoveryConfig {
     /// Enable service discovery (default: true)

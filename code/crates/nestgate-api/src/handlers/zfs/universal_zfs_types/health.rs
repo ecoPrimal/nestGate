@@ -9,9 +9,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::SystemTime;
 
-/// Health status of a service
+/// Health status of a service.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::HealthStatus` — uses `service_name: String` +
+/// `status: ServiceStatus` enum instead of canonical `healthy: bool`; has `last_check:
+/// SystemTime` and `metadata: HashMap<String, String>` instead of `details: HashMap<String, Value>`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Healthstatus
 pub struct HealthStatus {
     /// Service name
     pub service_name: String,
@@ -25,9 +28,12 @@ pub struct HealthStatus {
     pub metadata: HashMap<String, String>,
 }
 
-/// Service status
+/// Service status.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceStatus` — uses health-oriented variants
+/// (Healthy/Degraded/Unhealthy/Unknown) instead of canonical lifecycle variants
+/// (Running/Starting/Stopped/Degraded/Error/Unknown).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-/// Status values for Service
 pub enum ServiceStatus {
     /// Service is healthy
     Healthy,
@@ -39,17 +45,10 @@ pub enum ServiceStatus {
     Unknown,
 }
 
-/// Individual health check result
-#[derive(Debug, Clone, Serialize, Deserialize)]
-/// Healthcheck
-pub struct HealthCheck {
-    /// Check name
-    pub name: String,
-    /// Check passed
-    pub passed: bool,
-    /// Check message
-    pub message: Option<String>,
-}
+/// Individual health check result — canonical type from cellmembrane-types.
+///
+/// Replaces the local 3-field subset. Canonical adds `latency_ms: Option<u64>`.
+pub use cellmembrane_types::HealthCheck;
 
 /// Service metrics
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -20,7 +20,10 @@ use tracing::{debug, info};
 
 use crate::nestgate_rpc_service::NestGateJsonRpcHandler;
 
-/// JSON-RPC 2.0 Request
+/// JSON-RPC 2.0 Request.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcRequest` — uses `Arc<str>` for zero-copy,
+/// `id: String` instead of `Option<Value>`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonRpcRequest {
     /// JSON-RPC version (must be "2.0")
@@ -34,7 +37,10 @@ pub struct JsonRpcRequest {
     pub params: serde_json::Value,
 }
 
-/// JSON-RPC 2.0 Response
+/// JSON-RPC 2.0 Response.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcResponse` — uses `Arc<str>` for zero-copy,
+/// `id: String` instead of `Value`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonRpcResponse {
     /// JSON-RPC version (always "2.0")

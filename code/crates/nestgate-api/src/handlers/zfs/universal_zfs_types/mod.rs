@@ -145,6 +145,7 @@ mod tests {
                 name: "pool_health".into(),
                 passed: true,
                 message: None,
+                latency_ms: None,
             }],
             last_check: std::time::SystemTime::now(),
             metadata: HashMap::new(),

@@ -118,7 +118,10 @@ pub struct ZfsHealthStatus {
     pub last_check: u64,
 }
 
-/// Service information for discovery
+/// Service information for discovery.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — uses `service_id`/`service_type`
+/// instead of `id`/`name`, has `last_heartbeat` not in canonical.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServiceInfo {
     /// Service identifier

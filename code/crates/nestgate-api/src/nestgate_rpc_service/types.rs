@@ -94,7 +94,10 @@ pub struct StorageMetrics {
     pub snapshot_count: usize,
 }
 
-/// Health status for the storage system
+/// Health status for the storage system.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::HealthStatus` — uses `status: String` instead of
+/// `healthy: bool`; includes storage-specific fields (pools_healthy, pools_total).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthStatus {
     /// Current health status (e.g., "healthy", "degraded", "unhealthy")

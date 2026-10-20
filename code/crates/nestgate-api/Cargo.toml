@@ -14,6 +14,7 @@ homepage = "https://ecoprimals.org"
 workspace = true
 
 [dependencies]
+cellmembrane-types = { workspace = true }
 nestgate-core = { path = "../nestgate-core" }
 nestgate-platform = { path = "../nestgate-platform" }
 nestgate-security = { path = "../nestgate-security" }

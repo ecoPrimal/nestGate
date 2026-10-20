@@ -24,7 +24,11 @@ use std::time::{Duration, SystemTime};
 /// ```
 ///
 /// **Timeline**: This type alias will be maintained until v0.12.0 (May 2026)
-/// Configuration for Discovery
+/// Configuration for Discovery.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::DiscoveryConfig` — uses `Duration` types, has
+/// `endpoint: String` and `max_retries: u32` instead of canonical `methods: Vec<String>`
+/// and `retries: u32`; completely different field set.
 pub struct DiscoveryConfig {
     /// Discovery endpoint
     pub endpoint: String,

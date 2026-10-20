@@ -28,9 +28,12 @@ pub struct NetworkLocation {
     /// Secure
     pub secure: bool,
 }
-/// Security level enumeration
+/// Security level enumeration.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::SecurityLevel` — uses classification-oriented
+/// variants (Public/Internal/Confidential/Restricted/TopSecret) instead of canonical
+/// crypto-oriented variants (None/Standard/High/Maximum/QuantumResistant).
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Securitylevel
 pub enum SecurityLevel {
     /// Public
     Public,

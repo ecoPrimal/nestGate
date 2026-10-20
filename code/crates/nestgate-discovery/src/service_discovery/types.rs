@@ -500,9 +500,12 @@ pub struct ServiceHandle {
     /// Endpoints
     pub endpoints: Vec<ServiceEndpoint>,
 }
-/// Service information
+/// Service information.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — uses `service_id: Uuid` instead of
+/// `id: String`, `ServiceMetadata` struct instead of flat fields, `ServiceCapability` enum
+/// instead of `Vec<String>`, and custom `ServiceEndpoint` instead of `Vec<String>`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Serviceinfo
 pub struct ServiceInfo {
     /// Service identifier
     pub service_id: Uuid,

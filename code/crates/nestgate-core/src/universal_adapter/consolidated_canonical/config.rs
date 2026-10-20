@@ -72,7 +72,11 @@ impl Default for CanonicalAdapterConfig {
 
 // ==================== DISCOVERY CONFIGURATION ====================
 
-/// Configuration for service discovery
+/// Configuration for service discovery.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::DiscoveryConfig` — uses `auto_discovery: bool`,
+/// `Duration` types, and `DiscoveryMethod` enum instead of canonical `Vec<String>` methods;
+/// different field set overall.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiscoveryConfig {
     /// Enable automatic discovery

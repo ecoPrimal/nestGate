@@ -122,7 +122,11 @@ impl ServiceEndpoint {
     }
 }
 
-/// Discovery configuration
+/// Discovery configuration.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::DiscoveryConfig` — has `enabled` toggle, uses
+/// `DiscoveryMethod` enum instead of `Vec<String>`, `timeout_ms` instead of `timeout_secs`,
+/// missing `interval_secs`, `max_services`, `cache_*`, `retries`, `enable_ipv6`, `fallbacks`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiscoveryConfig {
     /// Enable runtime discovery

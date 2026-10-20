@@ -10,9 +10,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::SystemTime;
 
-/// Enhanced service information for orchestrator registration
+/// Enhanced service information for orchestrator registration.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — has `health_endpoint`,
+/// `ai_capabilities`, `monitoring_features` fields not in canonical; missing `id`,
+/// `version`, `status`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Serviceinfo
 pub struct ServiceInfo {
     /// Name
     pub name: String,

@@ -7,9 +7,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::SystemTime;
 
-/// Health status
+/// Health status.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::HealthStatus` — this is an enum
+/// (Healthy/Degraded/Unhealthy/Unknown) while canonical is a struct with `healthy: bool`,
+/// `message`, `uptime_secs`, `checks`, and extensible `details` map.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-/// Status values for Health
 pub enum HealthStatus {
     /// System is fully operational
     Healthy,
@@ -21,9 +24,12 @@ pub enum HealthStatus {
     Unknown,
 }
 
-/// Health check result
+/// Health check result.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::HealthCheck` — uses `component` instead of `name`,
+/// `status: HealthStatus` (enum) instead of `passed: bool`, and has `timestamp: SystemTime`
+/// and `response_time_ms: u64` not in canonical.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Healthcheck
 pub struct HealthCheck {
     /// Component being checked
     pub component: String,

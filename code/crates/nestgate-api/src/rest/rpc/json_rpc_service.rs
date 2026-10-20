@@ -22,7 +22,10 @@ use tokio::sync::mpsc;
 use tracing::{debug, info};
 use uuid::Uuid;
 
-/// JSON RPC request format for orchestration
+/// JSON RPC request format for orchestration.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcRequest` — uses `Uuid` for id, `_params`
+/// field name, Serialize-only (no Deserialize).
 #[derive(Debug, serde::Serialize)]
 struct JsonRpcRequest {
     jsonrpc: String,
@@ -30,6 +33,7 @@ struct JsonRpcRequest {
     method: String,
     _params: serde_json::Value,
 }
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcResponse` — uses `Uuid` for id.
 #[derive(Debug, Serialize, Deserialize)]
 struct JsonRpcResponse {
     jsonrpc: String,

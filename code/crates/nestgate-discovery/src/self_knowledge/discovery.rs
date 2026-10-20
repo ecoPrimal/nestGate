@@ -73,7 +73,11 @@ struct DiscoveredPrimal {
     cached_at: SystemTime,
 }
 
-/// Configuration for discovery behavior
+/// Configuration for discovery behavior.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::DiscoveryConfig` — uses `Duration` types instead
+/// of `u64` seconds, has `health_check_interval`/`query_timeout` fields not in canonical,
+/// missing `methods`, `max_services`, `retries`, `fallbacks`.
 #[derive(Debug, Clone)]
 pub struct DiscoveryConfig {
     /// How long to cache discovered primals before re-querying

@@ -283,6 +283,7 @@ impl UniversalZfsService for NativeZfsService {
                 } else {
                     "ZFS modules not available".into()
                 }),
+                latency_ms: None,
             }],
             last_check: SystemTime::now(),
             metadata: HashMap::new(),

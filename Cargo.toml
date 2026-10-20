@@ -91,6 +91,9 @@ keywords = ["sovereignty", "zfs", "copyleft", "infrastructure"]
 categories = ["network-programming", "filesystem", "web-programming"]
 
 [workspace.dependencies]
+# Canonical ecosystem types from cellMembrane
+cellmembrane-types = { path = "../../gardens/cellMembrane/crates/cellmembrane-types" }
+
 # Core async runtime — minimal feature set (was "full")
 tokio = { version = "1.0", features = [
     "fs",

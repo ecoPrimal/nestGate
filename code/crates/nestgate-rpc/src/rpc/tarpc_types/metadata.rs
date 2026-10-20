@@ -36,7 +36,11 @@ pub struct CapabilityRegistration {
     pub metadata: HashMap<String, String>,
 }
 
-/// Discovered service information
+/// Discovered service information.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — uses `Arc<str>` for id/capability,
+/// single `capability` field instead of `Vec<String>`, and `status: Arc<str>` instead of
+/// `ServiceStatus` enum.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServiceInfo {
     /// Service ID
@@ -65,7 +69,11 @@ pub struct RegistrationResult {
     pub message: String,
 }
 
-/// Health status
+/// Health status.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::HealthStatus` — uses `status: String` instead of
+/// `healthy: bool`; includes storage-specific fields (total_datasets, total_objects,
+/// storage_used_bytes) not in canonical.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthStatus {
     /// Status string ("healthy", "degraded", "unhealthy")

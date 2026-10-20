@@ -225,9 +225,12 @@ pub struct ServiceSpec {
     /// Additional metadata key-value pairs
     pub metadata: HashMap<String, String>,
 }
-/// Service information
+/// Service information.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — has `last_seen: SystemTime` not in
+/// canonical, `status: ServiceStatus` uses health-oriented variants, missing `endpoints`
+/// and `metadata` fields.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Serviceinfo
 pub struct ServiceInfo {
     /// Unique identifier
     pub id: String,
@@ -242,9 +245,12 @@ pub struct ServiceInfo {
     /// Last Seen
     pub last_seen: std::time::SystemTime,
 }
-/// Service status enumeration
+/// Service status enumeration.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceStatus` — uses health-oriented variants
+/// (Healthy/Degraded/Unhealthy/Unknown) instead of canonical lifecycle variants
+/// (Running/Starting/Stopped/Degraded/Error/Unknown).
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Status values for Service
 pub enum ServiceStatus {
     /// Healthy
     Healthy,

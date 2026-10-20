@@ -61,6 +61,11 @@ impl fmt::Display for JsonRpcErrorCode {
 /// Canonical JSON-RPC 2.0 error object.
 ///
 /// Serializes to the standard `{"code": -326xx, "message": "...", "data": ...}` shape.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcError` — uses `Cow<'static, str>` for
+/// message (zero-alloc factory methods) and has richer API with `JsonRpcErrorCode` enum and
+/// nestGate-specific `AuthRequired` code. Intentional: the `Cow` design enables const
+/// factory methods (`parse_error()`, `method_not_found()`, etc.) that avoid allocation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonRpcError {
     /// Error code.

@@ -10,7 +10,9 @@
 mod tests {
     use serde::{Deserialize, Serialize};
 
-    /// Local type for testing health check structure
+    /// Local type for testing health check structure.
+    /// ⚠ DIVERGES from `cellmembrane_types::HealthCheck` — test-only struct with `healthy: bool`
+    /// and `checks: Vec<ServiceHealth>` (completely different shape from canonical).
     #[derive(Debug, Clone, Serialize, Deserialize)]
     struct HealthCheck {
         healthy: bool,

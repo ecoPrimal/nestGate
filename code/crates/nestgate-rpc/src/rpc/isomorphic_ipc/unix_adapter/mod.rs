@@ -28,6 +28,7 @@ use crate::rpc::protocol::{normalize_method, warn_legacy_method_alias};
 
 use super::tcp_fallback::RpcHandler;
 
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcRequest` — uses `Arc<str>` for zero-copy.
 #[derive(Debug, Deserialize)]
 pub(super) struct JsonRpcRequest {
     #[expect(
@@ -40,6 +41,7 @@ pub(super) struct JsonRpcRequest {
     id: Option<Value>,
 }
 
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcResponse` — uses `Arc<str>` for zero-copy.
 #[derive(Debug, Serialize)]
 struct JsonRpcResponse {
     jsonrpc: Arc<str>,

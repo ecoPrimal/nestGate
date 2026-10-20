@@ -20,6 +20,9 @@ use tracing::{debug, error, trace};
 /// **JSON-RPC 2.0 REQUEST**
 ///
 /// Standard JSON-RPC 2.0 request format.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcRequest` — `params` is `Value` (not
+/// `Option<Value>`) and `id` is `Value` (not `Option<Value>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonRpcRequest {
     /// Protocol version (always "2.0")
@@ -39,6 +42,9 @@ pub struct JsonRpcRequest {
 /// **JSON-RPC 2.0 RESPONSE**
 ///
 /// Standard JSON-RPC 2.0 response format.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcResponse` — uses nestgate-types `JsonRpcError`
+/// (with `Cow<'static, str>` message) instead of canonical `String`-based error.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonRpcResponse {
     /// Protocol version (always "2.0")

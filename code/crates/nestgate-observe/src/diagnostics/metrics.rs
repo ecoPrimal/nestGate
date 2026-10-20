@@ -196,9 +196,12 @@ mod tests {
         Ok(())
     }
 }
-/// Service information
+/// Service information.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — metrics-oriented with pid,
+/// cpu_percent, memory_bytes, command_line fields not in canonical; uses
+/// `status: ServiceStatus` (local health-oriented enum) instead of canonical lifecycle enum.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// Serviceinfo
 pub struct ServiceInfo {
     /// Service name
     pub name: String,

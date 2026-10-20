@@ -100,7 +100,10 @@ pub struct ServiceConfig {
 /// - diagnostics/metrics.rs
 /// - And other scattered definitions
 ///
-/// Service Information structure
+/// ⚠ DIVERGES from `cellmembrane_types::ServiceInfo` — uses `service_id`/`service_name`
+/// instead of `id`/`name`, has runtime-specific fields (pid, cpu_percent, memory_bytes,
+/// start_time), uses `ServiceState` enum instead of canonical `ServiceStatus`, and has
+/// `health_status: String` + `health: Option<String>` backward-compat fields.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServiceInfo {
     // Core identification

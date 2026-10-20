@@ -162,12 +162,14 @@ impl NativeAsyncUniversalZfsService for ProductionZfsService {
             } else {
                 Self::not_available_err().to_string()
             }),
+            latency_ms: None,
         }];
         if let Ok(pools) = self.ops.list_pools().await {
             checks.push(HealthCheck {
                 name: "pool_count".into(),
                 passed: true,
                 message: Some(format!("{} pool(s) reported", pools.len())),
+                latency_ms: None,
             });
         }
         let mut meta = HashMap::new();

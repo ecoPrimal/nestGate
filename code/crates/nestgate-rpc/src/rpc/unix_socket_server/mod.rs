@@ -127,7 +127,9 @@ use tokio::net::UnixListener;
 use tracing::error;
 use tracing::{info, warn};
 
-/// JSON-RPC 2.0 Request
+/// JSON-RPC 2.0 Request.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcRequest` — uses `Arc<str>` for zero-copy.
 #[derive(Debug, Deserialize)]
 struct JsonRpcRequest {
     jsonrpc: Arc<str>,
@@ -136,7 +138,9 @@ struct JsonRpcRequest {
     id: Option<Value>,
 }
 
-/// JSON-RPC 2.0 Response
+/// JSON-RPC 2.0 Response.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::JsonRpcResponse` — uses `Arc<str>` for zero-copy.
 #[derive(Debug, Serialize)]
 struct JsonRpcResponse {
     jsonrpc: Arc<str>,

@@ -322,7 +322,11 @@ pub struct CapabilityDiscoveryManager<
     config: DiscoveryConfig,
 }
 
-/// Configuration for discovery manager
+/// Configuration for discovery manager.
+///
+/// ⚠ DIVERGES from `cellmembrane_types::DiscoveryConfig` — uses `Duration` types instead
+/// of `u64` seconds, has `peer_ttl` field not in canonical, missing `methods`, `cache_*`,
+/// `retries`, `max_services`, `fallbacks`.
 #[derive(Debug, Clone)]
 pub struct DiscoveryConfig {
     /// How often to announce self
